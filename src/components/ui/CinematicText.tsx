@@ -42,11 +42,11 @@ export function CinematicLines({
         <div key={`${line}-${lineIndex}`} className="w-full overflow-hidden">
           <motion.p
             className={headlineClassName}
-            initial={{ opacity: 0, filter: "blur(16px)", y: 12 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={
               active
-                ? { opacity: 1, filter: "blur(0px)", y: 0 }
-                : { opacity: 0, filter: "blur(10px)", y: -8 }
+                ? { opacity: 1, y: 0 }
+                : { opacity: 0, y: -6 }
             }
             transition={{
               duration: 1.35,
@@ -84,11 +84,11 @@ export function CinematicParagraph({
   return (
     <motion.p
       className={className}
-      initial={{ opacity: 0, filter: "blur(14px)", y: 10 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={
         active
-          ? { opacity: 1, filter: "blur(0px)", y: 0 }
-          : { opacity: 0, filter: "blur(8px)", y: -6 }
+          ? { opacity: 1, y: 0 }
+          : { opacity: 0, y: -4 }
       }
       transition={{
         duration: 1.2,

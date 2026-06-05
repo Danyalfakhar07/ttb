@@ -95,19 +95,20 @@ export function HeroSection({
     !ready ||
     (!reduceMotion && (transitioning || phase === "image-in"));
 
-  const scrimLevel = useMemo(() => {
-    if (!ready || productFocus) return 0;
-    let level = phase === "buttons" || phase === "hold" ? 0.32 : 0.2;
-    // Second hero slide is brighter on desktop — extra scrim for button legibility
+  const dimLevel = useMemo(() => {
+    // Keep a baseline dim at all times so we never flash from fully clear to dark.
+    if (!ready) return 0.1;
+    if (productFocus) return 0.06;
+    let level = phase === "buttons" || phase === "hold" ? 0.24 : 0.16;
     if (slideIndex === 1 && isDesktop) {
-      level += phase === "buttons" || phase === "hold" ? 0.14 : 0.1;
+      level += phase === "buttons" || phase === "hold" ? 0.08 : 0.05;
     }
-    return Math.min(level, 0.52);
+    return Math.min(level, 0.34);
   }, [ready, productFocus, phase, slideIndex, isDesktop]);
 
   const atmosphereTransition = reduceMotion
     ? { duration: 0.2 }
-    : { duration: 1.65, ease: luxuryEase };
+    : { duration: 2.4, ease: luxuryEase };
 
   const headlineVisible =
     ready &&
@@ -178,7 +179,7 @@ export function HeroSection({
   return (
     <section
       id="overview"
-      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden"
+      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-black [backface-visibility:hidden]"
     >
       <div className="pointer-events-none absolute inset-0">
         {SLIDES.map((s, i) => (
@@ -189,74 +190,44 @@ export function HeroSection({
             exiting={transitioning && i === prevSlideIndex && i !== slideIndex}
             reduceMotion={!!reduceMotion}
             priority={i === 0}
-            slideKey={slideIndex}
             showcase={productFocus && i === slideIndex}
           />
         ))}
       </div>
 
-      <HeroAtmosphere
-        scrimLevel={scrimLevel}
-        showcase={productFocus}
-        transitioning={transitioning}
-        transition={atmosphereTransition}
-      />
+      <HeroAtmosphere dimLevel={dimLevel} transition={atmosphereTransition} />
 
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-3 sm:px-6">
         <motion.div
           className="hero-copy-stage pointer-events-auto flex w-full max-w-[920px] flex-col items-center justify-center text-center"
           animate={{ y: copyStackOffset }}
-          transition={{ duration: 1, ease: luxuryEase }}
+          transition={{ duration: 2.2, ease: luxuryEase }}
         >
           <div className="flex min-h-[clamp(5.5rem,24vw,9.5rem)] w-full items-center justify-center">
-            <AnimatePresence mode="wait">
-              {headlineVisible && (
-                <motion.div
-                  key={`headline-${slideIndex}`}
-                  className="w-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{
-                    opacity: 0,
-                    transition: { duration: 0.8, ease: luxuryEase },
-                  }}
-                  transition={{ duration: 0.5, ease: luxuryEase }}
-                >
-                  <CinematicLines
-                    lines={[...slide.headlineLines]}
-                    active
-                    stagger={0.16}
-                    className="hero-headline-stack"
-                    lineClassName="hero-headline hero-headline-primary text-white"
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {headlineVisible && (
+              <div key={`headline-${slideIndex}`} className="w-full">
+                <CinematicLines
+                  lines={[...slide.headlineLines]}
+                  active
+                  stagger={0.16}
+                  className="hero-headline-stack"
+                  lineClassName="hero-headline hero-headline-primary text-white"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex min-h-[clamp(4.25rem,18vw,6.5rem)] w-full max-w-[600px] items-center justify-center px-0 sm:px-1">
-            <AnimatePresence mode="wait">
-              {subVisible && (
-                <motion.div
-                  key={`sub-${slideIndex}`}
-                  className="w-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{
-                    opacity: 0,
-                    transition: { duration: 0.75, ease: luxuryEase },
-                  }}
-                  transition={{ duration: 0.55, ease: luxuryEase }}
-                >
-                  <CinematicParagraph
-                    text={slide.subheadline}
-                    active={subVisible}
-                    delay={0.1}
-                    className="hero-subhead text-balance max-md:px-1"
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {subVisible && (
+              <div key={`sub-${slideIndex}`} className="w-full">
+                <CinematicParagraph
+                  text={slide.subheadline}
+                  active={subVisible}
+                  delay={0.1}
+                  className="hero-subhead text-balance max-md:px-1"
+                />
+              </div>
+            )}
           </div>
 
           <div className="relative flex h-[8.25rem] w-full items-center justify-center sm:h-[5.75rem]">
@@ -342,11 +313,10 @@ function HeroCtaButtons({
             <motion.div
               className="inline-flex w-auto max-w-full"
               variants={{
-                hidden: { opacity: 0, scale: 0.9, filter: "blur(8px)" },
+                hidden: { opacity: 0, scale: 0.94 },
                 visible: {
                   opacity: 1,
                   scale: 1,
-                  filter: "blur(0px)",
                   transition: { duration: 0.85, ease: luxuryEase },
                 },
                 exit: {
@@ -364,11 +334,10 @@ function HeroCtaButtons({
             <motion.div
               className="inline-flex w-auto max-w-full"
               variants={{
-                hidden: { opacity: 0, scale: 0.9, filter: "blur(8px)" },
+                hidden: { opacity: 0, scale: 0.94 },
                 visible: {
                   opacity: 1,
                   scale: 1,
-                  filter: "blur(0px)",
                   transition: { duration: 0.85, ease: luxuryEase },
                 },
                 exit: {
@@ -390,53 +359,23 @@ function HeroCtaButtons({
 }
 
 function HeroAtmosphere({
-  scrimLevel,
-  showcase,
-  transitioning,
+  dimLevel,
   transition,
 }: {
-  scrimLevel: number;
-  showcase: boolean;
-  transitioning: boolean;
+  dimLevel: number;
   transition: { duration: number; ease?: readonly [number, number, number, number] };
 }) {
-  const haloOpacity = showcase ? 0.75 : 0.4 + (1 - scrimLevel) * 0.15;
-
   return (
-    <>
+    <div className="pointer-events-none absolute inset-0 z-[1] [transform:translateZ(0)]">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_50%,transparent_42%,rgba(0,0,0,0.22)_100%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
       <motion.div
-        className="pointer-events-none absolute top-1/2 left-1/2 z-[1] h-[min(85vw,640px)] w-[min(85vw,640px)] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 40%, transparent 70%)",
-        }}
-        animate={{ scale: transitioning ? 1.1 : [1, 1.05, 1] }}
-        transition={{ scale: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
-      />
-      <motion.div
-        className="pointer-events-none absolute top-1/2 left-1/2 z-[1] h-[min(85vw,640px)] w-[min(85vw,640px)] -translate-x-1/2 -translate-y-1/2 rounded-full"
-        animate={{ opacity: haloOpacity }}
-        transition={{ opacity: transition }}
-        style={{
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 40%, transparent 70%)",
-        }}
-      />
-
-      <div className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(ellipse_100%_80%_at_50%_50%,transparent_40%,rgba(0,0,0,0.28)_100%)]" />
-
-      <motion.div
-        className="pointer-events-none absolute inset-0 z-[2]"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_48%,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.42)_100%)]"
         initial={false}
-        animate={{ opacity: scrimLevel }}
+        animate={{ opacity: dimLevel }}
         transition={transition}
-        style={{ willChange: "opacity" }}
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_95%_75%_at_50%_48%,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.28)_55%,rgba(0,0,0,0.55)_100%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black/55" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_52%,rgba(0,0,0,0.35),transparent_75%)]" />
-      </motion.div>
-    </>
+      />
+    </div>
   );
 }
 
@@ -446,7 +385,6 @@ function HeroImageLayer({
   exiting,
   reduceMotion,
   priority,
-  slideKey,
   showcase,
 }: {
   slide: (typeof SLIDES)[number];
@@ -454,7 +392,6 @@ function HeroImageLayer({
   exiting: boolean;
   reduceMotion: boolean;
   priority: boolean;
-  slideKey: number;
   showcase: boolean;
 }) {
   const duration = reduceMotion ? 0.5 : 2.8;
@@ -467,13 +404,11 @@ function HeroImageLayer({
       animate={{
         opacity: active ? 1 : exiting ? 0 : 0,
         scale: active ? 1 : exiting ? 1.02 : 1.04,
-        filter: active ? "blur(0px)" : exiting ? "blur(12px)" : "blur(20px)",
         zIndex: active ? 2 : exiting ? 1 : 0,
       }}
       transition={{
         opacity: { duration, ease: crossfadeEase },
         scale: { duration, ease: crossfadeEase },
-        filter: { duration: duration * 0.85, ease: crossfadeEase },
       }}
     >
       <motion.div
@@ -511,17 +446,21 @@ function HeroImageLayer({
         </div>
       </motion.div>
 
-      {active && showcase && (
-        <motion.div
-          key={`sweep-${slide.id}-${slideKey}`}
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent"
-          initial={{ x: "-100%", opacity: 0 }}
-          animate={{ x: ["-100%", "120%"], opacity: [0, 0.35, 0] }}
-          transition={{ duration: 2.2, ease: crossfadeEase, delay: 0.2 }}
-        />
-      )}
-
-      <div className="pointer-events-none absolute inset-0 bg-black/10" />
+      <AnimatePresence>
+        {active && showcase && (
+          <motion.div
+            key={`sweep-${slide.id}`}
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent"
+            initial={{ x: "-100%", opacity: 0 }}
+            animate={{ x: ["-100%", "120%"], opacity: [0, 0.28, 0] }}
+            exit={{ opacity: 0 }}
+            transition={{
+              x: { duration: 2.2, ease: crossfadeEase, delay: 0.2 },
+              opacity: { duration: 0.8, ease: crossfadeEase },
+            }}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
