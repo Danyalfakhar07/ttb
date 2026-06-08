@@ -5,24 +5,29 @@ import { motion, useReducedMotion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
+type RevealStyle = "fade" | "drift";
+
 interface CinematicLinesProps {
   lines: string[];
   className?: string;
   lineClassName?: string;
   stagger?: number;
   active?: boolean;
+  reveal?: RevealStyle;
 }
 
-/** Editorial headline reveal — soft opacity drift */
+/** Editorial headline reveal */
 export function CinematicLines({
   lines,
   className = "",
   lineClassName = "",
   stagger = 0.2,
   active = true,
+  reveal = "drift",
 }: CinematicLinesProps) {
   const reduceMotion = useReducedMotion();
   const headlineClassName = [lineClassName, "hero-headline-line"].filter(Boolean).join(" ");
+  const fadeOnly = reveal === "fade";
 
   if (reduceMotion) {
     return (
@@ -39,18 +44,21 @@ export function CinematicLines({
   return (
     <div className={className}>
       {lines.map((line, lineIndex) => (
-        <div key={`${line}-${lineIndex}`} className="w-full overflow-hidden">
+        <div
+          key={`${line}-${lineIndex}`}
+          className={fadeOnly ? "hero-headline-line-slot w-full" : "w-full overflow-hidden"}
+        >
           <motion.p
             className={headlineClassName}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, ...(fadeOnly ? {} : { y: 8 }) }}
             animate={
               active
-                ? { opacity: 1, y: 0 }
-                : { opacity: 0, y: -4 }
+                ? { opacity: 1, ...(fadeOnly ? {} : { y: 0 }) }
+                : { opacity: 0, ...(fadeOnly ? {} : { y: -4 }) }
             }
             transition={{
-              duration: 1.85,
-              delay: active ? 0.12 + lineIndex * stagger : 0,
+              duration: fadeOnly ? 2.1 : 1.85,
+              delay: active ? 0.15 + lineIndex * stagger : 0,
               ease: luxuryEase,
             }}
           >
@@ -67,6 +75,7 @@ interface CinematicParagraphProps {
   className?: string;
   active?: boolean;
   delay?: number;
+  reveal?: RevealStyle;
 }
 
 export function CinematicParagraph({
@@ -74,8 +83,10 @@ export function CinematicParagraph({
   className = "",
   active = true,
   delay = 0,
+  reveal = "drift",
 }: CinematicParagraphProps) {
   const reduceMotion = useReducedMotion();
+  const fadeOnly = reveal === "fade";
 
   if (reduceMotion) {
     return <p className={className}>{text}</p>;
@@ -84,14 +95,14 @@ export function CinematicParagraph({
   return (
     <motion.p
       className={className}
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, ...(fadeOnly ? {} : { y: 6 }) }}
       animate={
         active
-          ? { opacity: 1, y: 0 }
-          : { opacity: 0, y: -3 }
+          ? { opacity: 1, ...(fadeOnly ? {} : { y: 0 }) }
+          : { opacity: 0, ...(fadeOnly ? {} : { y: -3 }) }
       }
       transition={{
-        duration: 1.65,
+        duration: fadeOnly ? 1.9 : 1.65,
         delay: active ? delay + 0.1 : 0,
         ease: luxuryEase,
       }}

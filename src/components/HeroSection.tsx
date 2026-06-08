@@ -16,6 +16,10 @@ const SLIDES = [
       "A New Generation of",
       "Controlled Plant Environments",
     ],
+    desktopHeadlineLines: [
+      "A New Generation of Controlled",
+      "Plant Environments",
+    ],
     subheadline:
       "Beautiful living ecosystems designed to support a wide range of plants in stable indoor conditions.",
     desktop: "/hero/hero-1-desktop.jpeg",
@@ -28,6 +32,10 @@ const SLIDES = [
       "Precision Climate",
       "For Living Interiors",
     ],
+    desktopHeadlineLines: [
+      "Precision Climate For Living",
+      "Interiors",
+    ],
     subheadline:
       "Precision climate stewardship for rare species, delicate growth, and enduring indoor vitality.",
     desktop: "/hero/hero-2-desktop.jpeg",
@@ -39,6 +47,10 @@ const SLIDES = [
     headlineLines: [
       "Designed For Spaces",
       "That Breathe Life",
+    ],
+    desktopHeadlineLines: [
+      "Designed For Spaces That",
+      "Breathe Life",
     ],
     subheadline:
       "Crafted for collectors, hospitality, education, and spaces where living design defines the atmosphere.",
@@ -190,53 +202,21 @@ export function HeroSection({
         isDesktop={isDesktop}
       />
 
-      <div className="pointer-events-none relative z-10 min-h-[100dvh] max-md:grid max-md:grid-rows-[auto_1fr_auto]">
-        <div className="hero-copy-top pointer-events-auto flex w-full flex-col items-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] text-center sm:px-6 md:absolute md:inset-x-0 md:top-[34%] md:-translate-y-1/2 md:px-10 md:pt-0">
-          <AnimatePresence mode="wait">
-            {headlineVisible && (
-              <motion.div
-                key={`headline-${slideIndex}`}
-                className="w-full max-w-[920px]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.2, ease: luxuryEase }}
-              >
-                <CinematicLines
-                  lines={[...slide.headlineLines]}
-                  active
-                  stagger={0.22}
-                  className="hero-headline-stack"
-                  lineClassName="hero-headline hero-headline-primary text-white"
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence mode="wait">
-            {subVisible && (
-              <motion.div
-                key={`sub-${slideIndex}`}
-                className="mt-3 w-full max-w-[560px] md:mt-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.1, ease: luxuryEase }}
-              >
-                <CinematicParagraph
-                  text={slide.subheadline}
-                  active={subVisible}
-                  delay={0.15}
-                  className="hero-subhead text-balance"
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div aria-hidden className="min-h-[28vh] sm:min-h-[32vh] md:hidden" />
-
-        <div className="hero-copy-bottom pointer-events-auto flex w-full flex-col items-center px-4 pb-[max(2.25rem,env(safe-area-inset-bottom))] sm:px-6 md:absolute md:inset-x-0 md:bottom-0 md:pb-10">
+      {/* Mobile — top copy / product / bottom CTAs */}
+      <div className="pointer-events-none relative z-10 min-h-[100dvh] grid grid-rows-[auto_1fr_auto] md:hidden">
+        <HeroCopyBlock
+          slide={slide}
+          slideIndex={slideIndex}
+          headlineVisible={headlineVisible}
+          subVisible={subVisible}
+          lines={[...slide.headlineLines]}
+          reveal="drift"
+          headlineClassName="hero-headline hero-headline-primary text-white"
+          subClassName="hero-subhead text-balance"
+          topPadding="max-md"
+        />
+        <div aria-hidden className="min-h-[28vh] sm:min-h-[32vh]" />
+        <div className="hero-copy-bottom pointer-events-auto flex w-full flex-col items-center px-4 pb-[max(2.25rem,env(safe-area-inset-bottom))] sm:px-6">
           <HeroCtaButtons
             visible={buttonsVisible}
             slideKey={slideIndex}
@@ -245,6 +225,26 @@ export function HeroSection({
           />
         </div>
       </div>
+
+      {/* Desktop — unified stack: headline → sub → buttons */}
+      {(headlineVisible || subVisible || buttonsVisible) && (
+      <div className="pointer-events-none absolute inset-x-0 top-[14vh] z-10 hidden flex-col items-center px-10 text-center md:flex">
+        <HeroCopyBlock
+          slide={slide}
+          slideIndex={slideIndex}
+          headlineVisible={headlineVisible}
+          subVisible={subVisible}
+          buttonsVisible={buttonsVisible}
+          lines={[...slide.desktopHeadlineLines]}
+          reveal="fade"
+          headlineClassName="hero-headline hero-headline-primary hero-headline-desktop text-white"
+          subClassName="hero-subhead hero-subhead-desktop text-balance"
+          onWatchFilm={onWatchFilm}
+          onRegister={onRegister}
+          topPadding="desktop"
+        />
+      </div>
+      )}
 
       <motion.div
         className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 md:bottom-8"
@@ -258,6 +258,119 @@ export function HeroSection({
         />
       </motion.div>
     </section>
+  );
+}
+
+function HeroCopyBlock({
+  slide,
+  slideIndex,
+  headlineVisible,
+  subVisible,
+  lines,
+  reveal,
+  headlineClassName,
+  subClassName,
+  topPadding,
+  buttonsVisible,
+  onWatchFilm,
+  onRegister,
+}: {
+  slide: (typeof SLIDES)[number];
+  slideIndex: number;
+  headlineVisible: boolean;
+  subVisible: boolean;
+  lines: string[];
+  reveal: "fade" | "drift";
+  headlineClassName: string;
+  subClassName: string;
+  topPadding: "max-md" | "desktop";
+  buttonsVisible?: boolean;
+  onWatchFilm?: () => void;
+  onRegister?: () => void;
+}) {
+  const isDesktopStack = topPadding === "desktop";
+  const stagger = isDesktopStack ? 0.28 : 0.22;
+
+  return (
+    <div
+      className={
+        isDesktopStack
+          ? "hero-desktop-stack pointer-events-auto w-full max-w-[1120px]"
+          : "hero-copy-top pointer-events-auto flex w-full flex-col items-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] sm:px-6"
+      }
+    >
+      <div
+        className={
+          isDesktopStack
+            ? "hero-desktop-headline-slot flex w-full flex-col items-center"
+            : "w-full max-w-[920px]"
+        }
+      >
+        <AnimatePresence mode="sync">
+          {headlineVisible && (
+            <motion.div
+              key={`headline-${slideIndex}-${topPadding}`}
+              className="w-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: isDesktopStack ? 1.4 : 1.2, ease: luxuryEase }}
+            >
+              <CinematicLines
+                lines={lines}
+                active
+                stagger={stagger}
+                reveal={reveal}
+                className="hero-headline-stack"
+                lineClassName={headlineClassName}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div
+        className={
+          isDesktopStack
+            ? "hero-desktop-sub-slot mt-5 w-full max-w-[640px]"
+            : "mt-3 w-full max-w-[560px]"
+        }
+      >
+        <AnimatePresence mode="sync">
+          {subVisible && (
+            <motion.div
+              key={`sub-${slideIndex}-${topPadding}`}
+              className="w-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: isDesktopStack ? 1.5 : 1.1, ease: luxuryEase }}
+            >
+              <CinematicParagraph
+                text={slide.subheadline}
+                active={subVisible}
+                delay={isDesktopStack ? 0.2 : 0.15}
+                reveal={reveal}
+                className={subClassName}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {isDesktopStack && onWatchFilm && onRegister && (
+        <div
+          className={`mt-9 w-full ${buttonsVisible ? "hero-desktop-cta-slot" : ""}`}
+        >
+          <HeroCtaButtons
+            visible={!!buttonsVisible}
+            slideKey={slideIndex}
+            onWatchFilm={onWatchFilm}
+            onRegister={onRegister}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -296,27 +409,25 @@ function HeroCtaButtons({
               hidden: { opacity: 0 },
               visible: {
                 opacity: 1,
-                transition: { staggerChildren: 0.18, delayChildren: 0.12 },
+                transition: { staggerChildren: 0.2, delayChildren: 0.15 },
               },
               exit: {
                 opacity: 0,
-                transition: { duration: 0.9, ease: luxuryEase },
+                transition: { duration: 1.1, ease: luxuryEase },
               },
             }}
           >
             <motion.div
               className="inline-flex w-auto max-w-full"
               variants={{
-                hidden: { opacity: 0, y: 10 },
+                hidden: { opacity: 0 },
                 visible: {
                   opacity: 1,
-                  y: 0,
-                  transition: { duration: 1.3, ease: luxuryEase },
+                  transition: { duration: 1.5, ease: luxuryEase },
                 },
                 exit: {
                   opacity: 0,
-                  y: 6,
-                  transition: { duration: 0.8, ease: luxuryEase },
+                  transition: { duration: 1, ease: luxuryEase },
                 },
               }}
             >
@@ -328,16 +439,14 @@ function HeroCtaButtons({
             <motion.div
               className="inline-flex w-auto max-w-full"
               variants={{
-                hidden: { opacity: 0, y: 10 },
+                hidden: { opacity: 0 },
                 visible: {
                   opacity: 1,
-                  y: 0,
-                  transition: { duration: 1.3, ease: luxuryEase },
+                  transition: { duration: 1.5, ease: luxuryEase },
                 },
                 exit: {
                   opacity: 0,
-                  y: 6,
-                  transition: { duration: 0.8, ease: luxuryEase },
+                  transition: { duration: 1, ease: luxuryEase },
                 },
               }}
             >
