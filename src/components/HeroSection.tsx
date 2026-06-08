@@ -2,12 +2,12 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { LuxuryButton } from "./ui/LuxuryButton";
 import { CinematicLines, CinematicParagraph } from "./ui/CinematicText";
 
-const luxuryEase = [0.16, 1, 0.3, 1] as const;
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 const SLIDES = [
   {
@@ -63,12 +63,12 @@ const PHASE_ORDER: HeroPhase[] = [
 ];
 
 const PHASE_DURATION: Record<HeroPhase, number> = {
-  "image-in": 2000,
-  headline: 2000,
-  subheadline: 1500,
-  buttons: 1100,
-  hold: 4200,
-  transition: 2800,
+  "image-in": 3000,
+  headline: 2800,
+  subheadline: 2200,
+  buttons: 1600,
+  hold: 5200,
+  transition: 3400,
 };
 
 interface HeroSectionProps {
@@ -95,20 +95,11 @@ export function HeroSection({
     !ready ||
     (!reduceMotion && (transitioning || phase === "image-in"));
 
-  const dimLevel = useMemo(() => {
-    // Keep a baseline dim at all times so we never flash from fully clear to dark.
-    if (!ready) return 0.1;
-    if (productFocus) return 0.06;
-    let level = phase === "buttons" || phase === "hold" ? 0.24 : 0.16;
-    if (slideIndex === 1 && isDesktop) {
-      level += phase === "buttons" || phase === "hold" ? 0.08 : 0.05;
-    }
-    return Math.min(level, 0.34);
-  }, [ready, productFocus, phase, slideIndex, isDesktop]);
+  const copyActive = !productFocus;
 
   const atmosphereTransition = reduceMotion
-    ? { duration: 0.2 }
-    : { duration: 2.4, ease: luxuryEase };
+    ? { duration: 0.25 }
+    : { duration: 2.8, ease: luxuryEase };
 
   const headlineVisible =
     ready &&
@@ -124,14 +115,6 @@ export function HeroSection({
     ready &&
     !productFocus &&
     (reduceMotion || ["buttons", "hold"].includes(phase));
-
-  /** Shift copy down when lower rows are empty so headline sits on image center */
-  const copyStackOffset = useMemo(() => {
-    if (buttonsVisible) return 0;
-    if (subVisible) return 26;
-    if (headlineVisible) return 52;
-    return 0;
-  }, [buttonsVisible, subVisible, headlineVisible]);
 
   useEffect(() => {
     if (!ready) {
@@ -153,7 +136,7 @@ export function HeroSection({
       const loop = setInterval(() => {
         setPrevSlideIndex(slideIndex);
         setSlideIndex((i) => (i + 1) % SLIDES.length);
-      }, 7000);
+      }, 9000);
       return () => clearInterval(loop);
     }
 
@@ -176,10 +159,12 @@ export function HeroSection({
     return () => clearTimeout(t);
   }, [phase, reduceMotion, ready, hasStarted, slideIndex]);
 
+  const enableKenBurns = !reduceMotion && isDesktop;
+
   return (
     <section
       id="overview"
-      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-black [backface-visibility:hidden]"
+      className="relative min-h-[100dvh] overflow-hidden bg-black [backface-visibility:hidden]"
     >
       <div className="pointer-events-none absolute inset-0">
         {SLIDES.map((s, i) => (
@@ -191,73 +176,78 @@ export function HeroSection({
             reduceMotion={!!reduceMotion}
             priority={i === 0}
             showcase={productFocus && i === slideIndex}
+            kenBurns={enableKenBurns}
           />
         ))}
       </div>
 
-      <HeroAtmosphere dimLevel={dimLevel} transition={atmosphereTransition} />
+      <HeroAtmosphere copyActive={copyActive} transition={atmosphereTransition} />
 
-      <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-3 sm:px-6">
-        <motion.div
-          className="hero-copy-stage pointer-events-auto flex w-full max-w-[920px] flex-col items-center justify-center text-center"
-          animate={{ y: copyStackOffset }}
-          transition={{ duration: 2.2, ease: luxuryEase }}
-        >
-          <div className="flex min-h-[clamp(5.5rem,24vw,9.5rem)] w-full items-center justify-center">
+      <div className="pointer-events-none relative z-10 grid min-h-[100dvh] grid-rows-[auto_1fr_auto]">
+        <div className="hero-copy-top pointer-events-auto flex w-full flex-col items-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] text-center sm:px-6 md:pt-[max(6rem,calc(env(safe-area-inset-top)+5rem))]">
+          <AnimatePresence mode="wait">
             {headlineVisible && (
-              <div key={`headline-${slideIndex}`} className="w-full">
+              <motion.div
+                key={`headline-${slideIndex}`}
+                className="w-full max-w-[920px]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2, ease: luxuryEase }}
+              >
                 <CinematicLines
                   lines={[...slide.headlineLines]}
                   active
-                  stagger={0.16}
+                  stagger={0.22}
                   className="hero-headline-stack"
                   lineClassName="hero-headline hero-headline-primary text-white"
                 />
-              </div>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
 
-          <div className="flex min-h-[clamp(4.25rem,18vw,6.5rem)] w-full max-w-[600px] items-center justify-center px-0 sm:px-1">
+          <AnimatePresence mode="wait">
             {subVisible && (
-              <div key={`sub-${slideIndex}`} className="w-full">
+              <motion.div
+                key={`sub-${slideIndex}`}
+                className="mt-3 w-full max-w-[560px] md:mt-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.1, ease: luxuryEase }}
+              >
                 <CinematicParagraph
                   text={slide.subheadline}
                   active={subVisible}
-                  delay={0.1}
-                  className="hero-subhead text-balance max-md:px-1"
+                  delay={0.15}
+                  className="hero-subhead text-balance"
                 />
-              </div>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
+        </div>
 
-          <div className="relative flex h-[8.25rem] w-full items-center justify-center sm:h-[5.75rem]">
-            <motion.div
-              className="absolute top-0 left-1/2 h-px w-16 -translate-x-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-              animate={{
-                scaleX: buttonsVisible ? 1 : 0.4,
-                opacity: buttonsVisible ? 0.5 : 0,
-              }}
-              transition={{ duration: 0.9, ease: luxuryEase }}
-            />
-            <HeroCtaButtons
-              visible={buttonsVisible}
-              slideKey={slideIndex}
-              onWatchFilm={onWatchFilm}
-              onRegister={onRegister}
-            />
-          </div>
-        </motion.div>
+        <div aria-hidden className="min-h-[28vh] sm:min-h-[32vh]" />
+
+        <div className="hero-copy-bottom pointer-events-auto flex w-full flex-col items-center px-4 pb-[max(2.25rem,env(safe-area-inset-bottom))] sm:px-6 md:pb-10">
+          <HeroCtaButtons
+            visible={buttonsVisible}
+            slideKey={slideIndex}
+            onWatchFilm={onWatchFilm}
+            onRegister={onRegister}
+          />
+        </div>
       </div>
 
       <motion.div
-        className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2"
-        animate={{ opacity: buttonsVisible ? 0.4 : 0.12 }}
-        transition={{ duration: 1, ease: luxuryEase }}
+        className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 md:bottom-8"
+        animate={{ opacity: buttonsVisible ? 0.35 : 0.1 }}
+        transition={{ duration: 1.6, ease: luxuryEase }}
       >
         <motion.div
-          className="h-10 w-px bg-gradient-to-b from-white/0 via-white/45 to-white/0"
+          className="h-10 w-px bg-gradient-to-b from-white/0 via-white/40 to-white/0"
           animate={{ scaleY: [0.5, 1, 0.5] }}
-          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
         />
       </motion.div>
     </section>
@@ -276,18 +266,15 @@ function HeroCtaButtons({
   onRegister: () => void;
 }) {
   return (
-    <div className="relative flex h-full w-full items-center justify-center pt-4">
+    <div className="relative flex min-h-[5.5rem] w-full items-center justify-center sm:min-h-[4.5rem]">
       <motion.div
         aria-hidden={!visible}
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
         initial={false}
-        animate={{
-          opacity: visible ? 1 : 0,
-          scale: visible ? 1 : 0.85,
-        }}
-        transition={{ duration: 0.85, ease: luxuryEase }}
+        animate={{ opacity: visible ? 1 : 0 }}
+        transition={{ duration: 1.4, ease: luxuryEase }}
       >
-        <div className="h-24 w-[min(92%,340px)] rounded-full bg-white/[0.04] blur-2xl sm:h-16 sm:w-[min(80%,480px)]" />
+        <div className="h-20 w-[min(92%,340px)] rounded-full bg-white/[0.03] blur-2xl sm:h-14 sm:w-[min(80%,480px)]" />
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -302,27 +289,27 @@ function HeroCtaButtons({
               hidden: { opacity: 0 },
               visible: {
                 opacity: 1,
-                transition: { staggerChildren: 0.12, delayChildren: 0.05 },
+                transition: { staggerChildren: 0.18, delayChildren: 0.12 },
               },
               exit: {
                 opacity: 0,
-                transition: { duration: 0.5, ease: luxuryEase },
+                transition: { duration: 0.9, ease: luxuryEase },
               },
             }}
           >
             <motion.div
               className="inline-flex w-auto max-w-full"
               variants={{
-                hidden: { opacity: 0, scale: 0.94 },
+                hidden: { opacity: 0, y: 10 },
                 visible: {
                   opacity: 1,
-                  scale: 1,
-                  transition: { duration: 0.85, ease: luxuryEase },
+                  y: 0,
+                  transition: { duration: 1.3, ease: luxuryEase },
                 },
                 exit: {
                   opacity: 0,
-                  scale: 0.94,
-                  transition: { duration: 0.45, ease: luxuryEase },
+                  y: 6,
+                  transition: { duration: 0.8, ease: luxuryEase },
                 },
               }}
             >
@@ -334,16 +321,16 @@ function HeroCtaButtons({
             <motion.div
               className="inline-flex w-auto max-w-full"
               variants={{
-                hidden: { opacity: 0, scale: 0.94 },
+                hidden: { opacity: 0, y: 10 },
                 visible: {
                   opacity: 1,
-                  scale: 1,
-                  transition: { duration: 0.85, ease: luxuryEase },
+                  y: 0,
+                  transition: { duration: 1.3, ease: luxuryEase },
                 },
                 exit: {
                   opacity: 0,
-                  scale: 0.94,
-                  transition: { duration: 0.45, ease: luxuryEase },
+                  y: 6,
+                  transition: { duration: 0.8, ease: luxuryEase },
                 },
               }}
             >
@@ -359,20 +346,29 @@ function HeroCtaButtons({
 }
 
 function HeroAtmosphere({
-  dimLevel,
+  copyActive,
   transition,
 }: {
-  dimLevel: number;
+  copyActive: boolean;
   transition: { duration: number; ease?: readonly [number, number, number, number] };
 }) {
+  const topOpacity = copyActive ? 0.92 : 0.35;
+  const bottomOpacity = copyActive ? 0.88 : 0.3;
+
   return (
     <div className="pointer-events-none absolute inset-0 z-[1] [transform:translateZ(0)]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_50%,transparent_42%,rgba(0,0,0,0.22)_100%)]" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_52%,transparent_35%,rgba(0,0,0,0.18)_100%)]" />
+
       <motion.div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_48%,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.42)_100%)]"
+        className="absolute inset-x-0 top-0 h-[42%] bg-gradient-to-b from-black/70 via-black/30 to-transparent"
         initial={false}
-        animate={{ opacity: dimLevel }}
+        animate={{ opacity: topOpacity }}
+        transition={transition}
+      />
+      <motion.div
+        className="absolute inset-x-0 bottom-0 h-[32%] bg-gradient-to-t from-black/65 via-black/28 to-transparent"
+        initial={false}
+        animate={{ opacity: bottomOpacity }}
         transition={transition}
       />
     </div>
@@ -386,6 +382,7 @@ function HeroImageLayer({
   reduceMotion,
   priority,
   showcase,
+  kenBurns,
 }: {
   slide: (typeof SLIDES)[number];
   active: boolean;
@@ -393,8 +390,9 @@ function HeroImageLayer({
   reduceMotion: boolean;
   priority: boolean;
   showcase: boolean;
+  kenBurns: boolean;
 }) {
-  const duration = reduceMotion ? 0.5 : 2.8;
+  const duration = reduceMotion ? 0.6 : 3.4;
   const crossfadeEase = luxuryEase;
 
   return (
@@ -403,7 +401,7 @@ function HeroImageLayer({
       initial={false}
       animate={{
         opacity: active ? 1 : exiting ? 0 : 0,
-        scale: active ? 1 : exiting ? 1.02 : 1.04,
+        scale: active ? 1 : exiting ? 1.015 : 1.03,
         zIndex: active ? 2 : exiting ? 1 : 0,
       }}
       transition={{
@@ -412,16 +410,16 @@ function HeroImageLayer({
       }}
     >
       <motion.div
-        className="absolute inset-[-4%] [transform:translateZ(0)]"
+        className="absolute inset-[-3%] [transform:translateZ(0)]"
         animate={
-          active && !reduceMotion
-            ? { scale: [1.06, 1, 1.04], x: [0, "-0.5%", 0], y: [0, "-0.3%", 0] }
-            : { scale: 1.04, x: 0, y: 0 }
+          active && kenBurns
+            ? { scale: [1.04, 1, 1.03], x: [0, "-0.35%", 0], y: [0, "-0.2%", 0] }
+            : { scale: 1, x: 0, y: 0 }
         }
         transition={
-          active && !reduceMotion
-            ? { duration: 14, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }
-            : { duration: 0.6, ease: crossfadeEase }
+          active && kenBurns
+            ? { duration: 18, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }
+            : { duration: 1.2, ease: crossfadeEase }
         }
       >
         <div className="absolute inset-0 md:hidden">
@@ -430,7 +428,7 @@ function HeroImageLayer({
             alt=""
             fill
             priority={priority}
-            className="object-cover object-center"
+            className="hero-image-mobile object-cover"
             sizes="100vw"
           />
         </div>
@@ -440,7 +438,7 @@ function HeroImageLayer({
             alt=""
             fill
             priority={priority}
-            className="object-cover object-center"
+            className="hero-image-desktop object-cover"
             sizes="100vw"
           />
         </div>
@@ -450,13 +448,13 @@ function HeroImageLayer({
         {active && showcase && (
           <motion.div
             key={`sweep-${slide.id}`}
-            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent"
             initial={{ x: "-100%", opacity: 0 }}
-            animate={{ x: ["-100%", "120%"], opacity: [0, 0.28, 0] }}
+            animate={{ x: ["-100%", "120%"], opacity: [0, 0.22, 0] }}
             exit={{ opacity: 0 }}
             transition={{
-              x: { duration: 2.2, ease: crossfadeEase, delay: 0.2 },
-              opacity: { duration: 0.8, ease: crossfadeEase },
+              x: { duration: 2.8, ease: crossfadeEase, delay: 0.35 },
+              opacity: { duration: 1.2, ease: crossfadeEase },
             }}
           />
         )}

@@ -36,13 +36,15 @@ const initialLead: SurveyLeadCapture = {
   marketingConsent: false,
 };
 
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
+
 const stepVariants = {
-  enter: { opacity: 0, y: 24, filter: "blur(10px)" },
-  center: { opacity: 1, y: 0, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -16, filter: "blur(6px)" },
+  enter: { opacity: 0, y: 14 },
+  center: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 },
 };
 
-const SINGLE_ADVANCE_MS = 480;
+const SINGLE_ADVANCE_MS = 760;
 
 interface SurveyExperienceProps {
   onReturnOverview: () => void;
@@ -220,7 +222,7 @@ export function SurveyExperience({ onReturnOverview }: SurveyExperienceProps) {
           <motion.div
             className="h-full bg-gradient-to-r from-white/25 via-white/60 to-white/25"
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 1.1, ease: luxuryEase }}
           />
         </div>
 
@@ -447,7 +449,7 @@ function StepShell({
       initial="enter"
       animate="center"
       exit="exit"
-      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 1.05, ease: luxuryEase }}
     >
       {children}
     </motion.div>

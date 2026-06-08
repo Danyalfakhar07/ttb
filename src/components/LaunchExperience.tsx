@@ -16,8 +16,8 @@ export function LaunchExperience() {
 
   const handleLoadComplete = useCallback(() => {
     setLoaded(true);
-    setTimeout(() => setShowContent(true), 120);
-    setTimeout(() => setHeroReady(true), 700);
+    setTimeout(() => setShowContent(true), 280);
+    setTimeout(() => setHeroReady(true), 1100);
   }, []);
 
   const scrollTo = (id: string) => {
@@ -31,7 +31,7 @@ export function LaunchExperience() {
 
       <SmoothScroll enabled={showContent}>
         <div
-          className="transition-opacity duration-1000"
+          className="transition-opacity duration-[1800ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
           style={{ opacity: showContent ? 1 : 0 }}
         >
           <SiteHeader

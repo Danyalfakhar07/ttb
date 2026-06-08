@@ -3,7 +3,7 @@
 import { BRAND_FULL, BRAND_FULL_WORDS } from "@/lib/brand";
 import { motion, useReducedMotion } from "framer-motion";
 
-const luxuryEase = [0.16, 1, 0.3, 1] as const;
+const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
 interface CinematicLinesProps {
   lines: string[];
@@ -13,12 +13,12 @@ interface CinematicLinesProps {
   active?: boolean;
 }
 
-/** Editorial headline reveal — blur dissolve with soft drift */
+/** Editorial headline reveal — soft opacity drift */
 export function CinematicLines({
   lines,
   className = "",
   lineClassName = "",
-  stagger = 0.14,
+  stagger = 0.2,
   active = true,
 }: CinematicLinesProps) {
   const reduceMotion = useReducedMotion();
@@ -42,15 +42,15 @@ export function CinematicLines({
         <div key={`${line}-${lineIndex}`} className="w-full overflow-hidden">
           <motion.p
             className={headlineClassName}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={
               active
                 ? { opacity: 1, y: 0 }
-                : { opacity: 0, y: -6 }
+                : { opacity: 0, y: -4 }
             }
             transition={{
-              duration: 1.35,
-              delay: active ? 0.08 + lineIndex * stagger : 0,
+              duration: 1.85,
+              delay: active ? 0.12 + lineIndex * stagger : 0,
               ease: luxuryEase,
             }}
           >
@@ -84,15 +84,15 @@ export function CinematicParagraph({
   return (
     <motion.p
       className={className}
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={
         active
           ? { opacity: 1, y: 0 }
-          : { opacity: 0, y: -4 }
+          : { opacity: 0, y: -3 }
       }
       transition={{
-        duration: 1.2,
-        delay: active ? delay + 0.06 : 0,
+        duration: 1.65,
+        delay: active ? delay + 0.1 : 0,
         ease: luxuryEase,
       }}
     >
@@ -122,11 +122,11 @@ export function BrandNameReveal({ active = true }: BrandNameRevealProps) {
         <motion.span
           key={word}
           className="block text-center font-display text-[clamp(1.1rem,4.5vw,1.65rem)] font-light tracking-[0.28em] text-white/85 uppercase"
-          initial={{ opacity: 0, y: 8 }}
-          animate={active ? { opacity: 1, y: 0 } : { opacity: 0, y: -4 }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={active ? { opacity: 1, y: 0 } : { opacity: 0, y: -3 }}
           transition={{
-            duration: 0.9,
-            delay: active ? 0.12 + i * 0.14 : 0,
+            duration: 1.2,
+            delay: active ? 0.18 + i * 0.18 : 0,
             ease: luxuryEase,
           }}
         >
