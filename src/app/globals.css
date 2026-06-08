@@ -213,29 +213,12 @@ h6,
 }
 
 @media (min-width: 768px) {
-  .hero-desktop-upper-band {
-    position: relative;
-    z-index: 2;
-    max-height: min(44vh, 500px);
-    padding-top: max(5rem, 8.5vh);
-    padding-bottom: 1.25rem;
-  }
-
-  .hero-desktop-upper-scrim {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.72) 0%,
-      rgba(0, 0, 0, 0.42) 55%,
-      transparent 100%
-    );
-    pointer-events: none;
-  }
-
   .hero-desktop-stack {
+    pointer-events: auto;
     align-items: center;
     width: 100%;
+    max-width: 1120px;
+    text-align: center;
   }
 
   .hero-desktop-headline-slot {
