@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { BRAND_SHORT } from "@/lib/brand";
 
-type BrandLogoSize = "xs" | "sm" | "md" | "lg";
+type BrandLogoSize = "xs" | "sm" | "header" | "md" | "lg";
 
 const sizeConfig: Record<
   BrandLogoSize,
@@ -16,6 +16,11 @@ const sizeConfig: Record<
     text: "text-[13px] tracking-[0.35em]",
     width: 10,
     height: 19,
+  },
+  header: {
+    text: "text-[15px] md:text-[17px] tracking-[0.38em]",
+    width: 12,
+    height: 23,
   },
   md: {
     text: "text-[clamp(0.85rem,3vw,1rem)] tracking-[0.48em]",

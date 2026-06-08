@@ -19,7 +19,7 @@ export function SiteHeader({ onRegister, visible = true }: SiteHeaderProps) {
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between">
         <a href="#overview" className="transition-opacity duration-700 hover:opacity-80">
-          <BrandLogo size="sm" />
+          <BrandLogo size="header" />
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">
