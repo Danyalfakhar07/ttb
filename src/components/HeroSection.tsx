@@ -24,7 +24,7 @@ const SLIDES = [
       "Beautiful living ecosystems designed to support a wide range of plants in stable indoor conditions.",
     desktop: "/hero/hero-1-desktop.jpeg",
     mobile: "/hero/hero-1-mobile.jpeg",
-    desktopFocus: "center 48%",
+    desktopFocus: "center 38%",
   },
   {
     id: 1,
@@ -40,7 +40,7 @@ const SLIDES = [
       "Precision climate stewardship for rare species, delicate growth, and enduring indoor vitality.",
     desktop: "/hero/hero-2-desktop.jpeg",
     mobile: "/hero/hero-2-mobile.jpeg",
-    desktopFocus: "center 54%",
+    desktopFocus: "center 72%",
   },
   {
     id: 2,
@@ -56,7 +56,7 @@ const SLIDES = [
       "Crafted for collectors, hospitality, education, and spaces where living design defines the atmosphere.",
     desktop: "/hero/hero-3-desktop.jpeg",
     mobile: "/hero/hero-3-mobile.jpeg",
-    desktopFocus: "center 52%",
+    desktopFocus: "center 62%",
   },
 ] as const;
 
@@ -226,28 +226,34 @@ export function HeroSection({
         </div>
       </div>
 
-      {/* Desktop — unified stack: headline → sub → buttons */}
+      {/* Desktop — upper band for copy; product stays clear below */}
       {(headlineVisible || subVisible || buttonsVisible) && (
-      <div className="pointer-events-none absolute inset-x-0 top-[14vh] z-10 hidden flex-col items-center px-10 text-center md:flex">
-        <HeroCopyBlock
-          slide={slide}
-          slideIndex={slideIndex}
-          headlineVisible={headlineVisible}
-          subVisible={subVisible}
-          buttonsVisible={buttonsVisible}
-          lines={[...slide.desktopHeadlineLines]}
-          reveal="fade"
-          headlineClassName="hero-headline hero-headline-primary hero-headline-desktop text-white"
-          subClassName="hero-subhead hero-subhead-desktop text-balance"
-          onWatchFilm={onWatchFilm}
-          onRegister={onRegister}
-          topPadding="desktop"
-        />
-      </div>
+        <div className="pointer-events-none relative z-10 hidden min-h-[100dvh] md:grid md:grid-rows-[auto_1fr]">
+          <div className="hero-desktop-upper-band pointer-events-auto">
+            <div className="hero-desktop-upper-scrim" aria-hidden />
+            <div className="relative mx-auto flex w-full justify-center px-10 text-center">
+              <HeroCopyBlock
+                slide={slide}
+                slideIndex={slideIndex}
+                headlineVisible={headlineVisible}
+                subVisible={subVisible}
+                buttonsVisible={buttonsVisible}
+                lines={[...slide.desktopHeadlineLines]}
+                reveal="fade"
+                headlineClassName="hero-headline hero-headline-primary hero-headline-desktop text-white"
+                subClassName="hero-subhead hero-subhead-desktop text-balance"
+                onWatchFilm={onWatchFilm}
+                onRegister={onRegister}
+                topPadding="desktop"
+              />
+            </div>
+          </div>
+          <div aria-hidden className="min-h-0" />
+        </div>
       )}
 
       <motion.div
-        className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 md:bottom-8"
+        className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 md:hidden"
         animate={{ opacity: buttonsVisible ? 0.35 : 0.1 }}
         transition={{ duration: 1.6, ease: luxuryEase }}
       >
@@ -332,7 +338,7 @@ function HeroCopyBlock({
       <div
         className={
           isDesktopStack
-            ? "hero-desktop-sub-slot mt-5 w-full max-w-[640px]"
+            ? "hero-desktop-sub-slot mt-4 w-full max-w-[580px] text-center"
             : "mt-3 w-full max-w-[560px]"
         }
       >
@@ -360,7 +366,7 @@ function HeroCopyBlock({
 
       {isDesktopStack && onWatchFilm && onRegister && (
         <div
-          className={`mt-9 w-full ${buttonsVisible ? "hero-desktop-cta-slot" : ""}`}
+          className={`mt-6 w-full ${buttonsVisible ? "hero-desktop-cta-slot" : ""}`}
         >
           <HeroCtaButtons
             visible={!!buttonsVisible}
@@ -471,22 +477,21 @@ function HeroAtmosphere({
   isDesktop: boolean;
 }) {
   if (isDesktop) {
-    const bottomOpacity = copyActive ? 0.82 : 0.28;
-    const edgeOpacity = copyActive ? 0.72 : 0.32;
+    const topOpacity = copyActive ? 0.95 : 0.4;
+    const edgeOpacity = copyActive ? 0.45 : 0.22;
 
     return (
       <div className="pointer-events-none absolute inset-0 z-[1] [transform:translateZ(0)]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_72%_62%_at_50%_56%,transparent_22%,rgba(0,0,0,0.3)_100%)]" />
         <motion.div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_55%_48%_at_50%_58%,transparent_55%,rgba(0,0,0,0.22)_100%)]"
+          className="absolute inset-x-0 top-0 h-[46%] bg-gradient-to-b from-black/75 via-black/35 to-transparent"
           initial={false}
-          animate={{ opacity: edgeOpacity }}
+          animate={{ opacity: topOpacity }}
           transition={transition}
         />
         <motion.div
-          className="absolute inset-x-0 bottom-0 h-[26%] bg-gradient-to-t from-black/58 via-black/18 to-transparent"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_80%_65%_at_50%_68%,transparent_30%,rgba(0,0,0,0.28)_100%)]"
           initial={false}
-          animate={{ opacity: bottomOpacity }}
+          animate={{ opacity: edgeOpacity }}
           transition={transition}
         />
       </div>
@@ -551,7 +556,7 @@ function HeroImageLayer({
       }}
     >
       <motion.div
-        className="absolute inset-[-3%] [transform:translateZ(0)]"
+        className="absolute inset-[-3%] md:inset-[-10%] [transform:translateZ(0)]"
         animate={
           active && kenBurns
             ? { scale: [1.04, 1, 1.03], x: [0, "-0.35%", 0], y: [0, "-0.2%", 0] }
