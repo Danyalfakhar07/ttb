@@ -20,6 +20,7 @@ const SLIDES = [
       "Beautiful living ecosystems designed to support a wide range of plants in stable indoor conditions.",
     desktop: "/hero/hero-1-desktop.jpeg",
     mobile: "/hero/hero-1-mobile.jpeg",
+    desktopFocus: "center 48%",
   },
   {
     id: 1,
@@ -31,6 +32,7 @@ const SLIDES = [
       "Precision climate stewardship for rare species, delicate growth, and enduring indoor vitality.",
     desktop: "/hero/hero-2-desktop.jpeg",
     mobile: "/hero/hero-2-mobile.jpeg",
+    desktopFocus: "center 54%",
   },
   {
     id: 2,
@@ -42,6 +44,7 @@ const SLIDES = [
       "Crafted for collectors, hospitality, education, and spaces where living design defines the atmosphere.",
     desktop: "/hero/hero-3-desktop.jpeg",
     mobile: "/hero/hero-3-mobile.jpeg",
+    desktopFocus: "center 52%",
   },
 ] as const;
 
@@ -181,10 +184,14 @@ export function HeroSection({
         ))}
       </div>
 
-      <HeroAtmosphere copyActive={copyActive} transition={atmosphereTransition} />
+      <HeroAtmosphere
+        copyActive={copyActive}
+        transition={atmosphereTransition}
+        isDesktop={isDesktop}
+      />
 
-      <div className="pointer-events-none relative z-10 grid min-h-[100dvh] grid-rows-[auto_1fr_auto]">
-        <div className="hero-copy-top pointer-events-auto flex w-full flex-col items-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] text-center sm:px-6 md:pt-[max(6rem,calc(env(safe-area-inset-top)+5rem))]">
+      <div className="pointer-events-none relative z-10 min-h-[100dvh] max-md:grid max-md:grid-rows-[auto_1fr_auto]">
+        <div className="hero-copy-top pointer-events-auto flex w-full flex-col items-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] text-center sm:px-6 md:absolute md:inset-x-0 md:top-[34%] md:-translate-y-1/2 md:px-10 md:pt-0">
           <AnimatePresence mode="wait">
             {headlineVisible && (
               <motion.div
@@ -227,9 +234,9 @@ export function HeroSection({
           </AnimatePresence>
         </div>
 
-        <div aria-hidden className="min-h-[28vh] sm:min-h-[32vh]" />
+        <div aria-hidden className="min-h-[28vh] sm:min-h-[32vh] md:hidden" />
 
-        <div className="hero-copy-bottom pointer-events-auto flex w-full flex-col items-center px-4 pb-[max(2.25rem,env(safe-area-inset-bottom))] sm:px-6 md:pb-10">
+        <div className="hero-copy-bottom pointer-events-auto flex w-full flex-col items-center px-4 pb-[max(2.25rem,env(safe-area-inset-bottom))] sm:px-6 md:absolute md:inset-x-0 md:bottom-0 md:pb-10">
           <HeroCtaButtons
             visible={buttonsVisible}
             slideKey={slideIndex}
@@ -348,10 +355,35 @@ function HeroCtaButtons({
 function HeroAtmosphere({
   copyActive,
   transition,
+  isDesktop,
 }: {
   copyActive: boolean;
   transition: { duration: number; ease?: readonly [number, number, number, number] };
+  isDesktop: boolean;
 }) {
+  if (isDesktop) {
+    const bottomOpacity = copyActive ? 0.82 : 0.28;
+    const edgeOpacity = copyActive ? 0.72 : 0.32;
+
+    return (
+      <div className="pointer-events-none absolute inset-0 z-[1] [transform:translateZ(0)]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_72%_62%_at_50%_56%,transparent_22%,rgba(0,0,0,0.3)_100%)]" />
+        <motion.div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_55%_48%_at_50%_58%,transparent_55%,rgba(0,0,0,0.22)_100%)]"
+          initial={false}
+          animate={{ opacity: edgeOpacity }}
+          transition={transition}
+        />
+        <motion.div
+          className="absolute inset-x-0 bottom-0 h-[26%] bg-gradient-to-t from-black/58 via-black/18 to-transparent"
+          initial={false}
+          animate={{ opacity: bottomOpacity }}
+          transition={transition}
+        />
+      </div>
+    );
+  }
+
   const topOpacity = copyActive ? 0.92 : 0.35;
   const bottomOpacity = copyActive ? 0.88 : 0.3;
 
@@ -439,6 +471,7 @@ function HeroImageLayer({
             fill
             priority={priority}
             className="hero-image-desktop object-cover"
+            style={{ objectPosition: slide.desktopFocus }}
             sizes="100vw"
           />
         </div>

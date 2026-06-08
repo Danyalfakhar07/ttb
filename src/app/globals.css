@@ -153,15 +153,17 @@ h6,
 }
 
 .hero-image-desktop {
-  object-position: center 44%;
+  object-position: center 50%;
 }
 
-.hero-copy-top {
-  justify-self: start;
-}
+@media (max-width: 767px) {
+  .hero-copy-top {
+    justify-self: start;
+  }
 
-.hero-copy-bottom {
-  justify-self: end;
+  .hero-copy-bottom {
+    justify-self: end;
+  }
 }
 
 .hero-headline-primary {
@@ -220,14 +222,18 @@ h6,
   }
 
   .hero-headline-primary {
-    font-size: clamp(2.15rem, 4.2vw, 3.35rem);
+    font-size: clamp(2.35rem, 3.8vw, 3.5rem);
     font-weight: 300;
     letter-spacing: -0.034em;
+    max-width: 18ch;
+    margin-inline: auto;
   }
 
   .hero-subhead {
-    font-size: clamp(1.05rem, 2.2vw, 1.24rem);
+    font-size: clamp(1.05rem, 1.8vw, 1.2rem);
     line-height: 1.58;
+    max-width: 42ch;
+    margin-inline: auto;
   }
 }
 
