@@ -158,11 +158,14 @@ h6,
 
 @media (max-width: 767px) {
   .hero-copy-top {
-    justify-self: start;
+    justify-self: center;
+    width: 100%;
+    text-align: center;
   }
 
   .hero-copy-bottom {
-    justify-self: end;
+    justify-self: center;
+    width: 100%;
   }
 }
 
@@ -198,6 +201,8 @@ h6,
     font-weight: 300;
     letter-spacing: -0.028em;
     max-width: 94vw;
+    margin-inline: auto;
+    text-align: center;
     text-shadow:
       0 4px 32px rgba(0, 0, 0, 0.65),
       0 0 40px rgba(0, 0, 0, 0.25);
@@ -208,6 +213,8 @@ h6,
     line-height: 1.52;
     font-weight: 300;
     max-width: 92vw;
+    margin-inline: auto;
+    text-align: center;
     color: rgba(255, 255, 255, 0.84);
   }
 }

@@ -293,14 +293,14 @@ function HeroCopyBlock({
       className={
         isDesktopStack
           ? "hero-desktop-stack pointer-events-auto w-full max-w-[1120px]"
-          : "hero-copy-top pointer-events-auto flex w-full flex-col items-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] sm:px-6"
+          : "hero-copy-top pointer-events-auto flex w-full flex-col items-center text-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] sm:px-6"
       }
     >
       <div
         className={
           isDesktopStack
             ? "hero-desktop-headline-slot flex w-full flex-col items-center"
-            : "w-full max-w-[920px]"
+            : "mx-auto w-full max-w-[920px] text-center"
         }
       >
         <AnimatePresence mode="sync">
@@ -330,7 +330,7 @@ function HeroCopyBlock({
         className={
           isDesktopStack
             ? "hero-desktop-sub-slot mt-4 w-full max-w-[580px] text-center"
-            : "mt-3 w-full max-w-[560px]"
+            : "mx-auto mt-3 w-full max-w-[560px] text-center"
         }
       >
         <AnimatePresence mode="sync">
@@ -536,7 +536,7 @@ function HeroImageLayer({
         opacity: { duration, ease: crossfadeEase },
       }}
     >
-      <div className="absolute inset-0 [transform:translateZ(0)]">
+      <div className="absolute inset-[-3%] md:inset-0 [transform:translateZ(0)]">
         <div className="absolute inset-0 md:hidden">
           <Image
             src={slide.mobile}
