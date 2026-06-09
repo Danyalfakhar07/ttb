@@ -11,13 +11,13 @@ import { SmoothScroll } from "./SmoothScroll";
 
 export function LaunchExperience() {
   const [loaded, setLoaded] = useState(false);
-  const [showContent, setShowContent] = useState(false);
-  const [heroReady, setHeroReady] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(false);
+  const [copyReady, setCopyReady] = useState(false);
 
   const handleLoadComplete = useCallback(() => {
     setLoaded(true);
-    setTimeout(() => setShowContent(true), 280);
-    setTimeout(() => setHeroReady(true), 1100);
+    setTimeout(() => setHeaderVisible(true), 900);
+    setTimeout(() => setCopyReady(true), 1900);
   }, []);
 
   const scrollTo = (id: string) => {
@@ -29,19 +29,17 @@ export function LaunchExperience() {
     <>
       {!loaded && <LaunchLoader onComplete={handleLoadComplete} />}
 
-      <SmoothScroll enabled={showContent}>
-        <div
-          className="transition-opacity duration-[1800ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{ opacity: showContent ? 1 : 0 }}
-        >
+      {loaded && (
+        <SmoothScroll enabled>
           <SiteHeader
-            visible={heroReady}
+            visible={headerVisible}
             onRegister={() => scrollTo("inquiry")}
           />
 
           <main>
             <HeroSection
-              ready={heroReady}
+              imageReady={loaded}
+              copyReady={copyReady}
               onWatchFilm={() => scrollTo("film")}
               onRegister={() => scrollTo("inquiry")}
             />
@@ -50,8 +48,8 @@ export function LaunchExperience() {
           </main>
 
           <SiteFooter />
-        </div>
-      </SmoothScroll>
+        </SmoothScroll>
+      )}
     </>
   );
 }

@@ -73,7 +73,8 @@ const DESKTOP_COPY_PHASES: HeroPhase[] = [
   "subheadline",
   "buttons",
   "hold",
-  "transition",
+  "copy-out",
+  "buttons-out",
 ];
 
 type HeroPhase =
@@ -82,6 +83,8 @@ type HeroPhase =
   | "subheadline"
   | "buttons"
   | "hold"
+  | "copy-out"
+  | "buttons-out"
   | "transition";
 
 const PHASE_ORDER: HeroPhase[] = [
@@ -90,26 +93,32 @@ const PHASE_ORDER: HeroPhase[] = [
   "subheadline",
   "buttons",
   "hold",
+  "copy-out",
+  "buttons-out",
   "transition",
 ];
 
 const PHASE_DURATION: Record<HeroPhase, number> = {
-  "image-in": 600,
+  "image-in": 800,
   headline: 3200,
   subheadline: 2800,
   buttons: 2000,
   hold: 5000,
+  "copy-out": 3000,
+  "buttons-out": 3000,
   transition: 5200,
 };
 
 interface HeroSectionProps {
-  ready?: boolean;
+  imageReady?: boolean;
+  copyReady?: boolean;
   onWatchFilm: () => void;
   onRegister: () => void;
 }
 
 export function HeroSection({
-  ready = true,
+  imageReady = true,
+  copyReady = true,
   onWatchFilm,
   onRegister,
 }: HeroSectionProps) {
@@ -122,71 +131,79 @@ export function HeroSection({
   const slide = SLIDES[slideIndex];
   const nextSlideIndex = (slideIndex + 1) % SLIDES.length;
   const transitioning = phase === "transition";
-  const productFocus = !ready || (!reduceMotion && transitioning);
+  const textExiting = phase === "copy-out";
+  const buttonsExiting = phase === "buttons-out";
+  const productFocus = !imageReady || (!reduceMotion && transitioning);
 
-  const copyActive = !productFocus;
+  const copyActive =
+    copyReady &&
+    !transitioning &&
+    !textExiting &&
+    !buttonsExiting &&
+    phase !== "image-in";
 
   const atmosphereTransition = reduceMotion
     ? { duration: 0.25 }
     : { duration: 3.2, ease: luxuryEase };
 
   const headlineVisible =
-    ready &&
+    copyReady &&
     !productFocus &&
-    (reduceMotion || ["headline", "subheadline", "buttons", "hold"].includes(phase));
+    (reduceMotion ||
+      ["headline", "subheadline", "buttons", "hold", "copy-out"].includes(phase));
 
   const subVisible =
-    ready &&
+    copyReady &&
     !productFocus &&
-    (reduceMotion || ["subheadline", "buttons", "hold"].includes(phase));
+    (reduceMotion ||
+      ["subheadline", "buttons", "hold", "copy-out"].includes(phase));
 
   const buttonsVisible =
-    ready &&
+    copyReady &&
     !productFocus &&
-    (reduceMotion || ["buttons", "hold"].includes(phase));
+    (reduceMotion ||
+      ["buttons", "hold", "copy-out", "buttons-out"].includes(phase));
 
   const desktopCopyMounted =
-    ready &&
+    copyReady &&
     isDesktop &&
     (reduceMotion
       ? headlineVisible || subVisible || buttonsVisible
       : DESKTOP_COPY_PHASES.includes(phase));
 
-  const desktopFadingOut = phase === "transition";
-
   const desktopHeadlineShown =
-    ready &&
+    copyReady &&
     (reduceMotion
       ? headlineVisible
-      : DESKTOP_COPY_PHASES.includes(phase));
+      : DESKTOP_COPY_PHASES.includes(phase) || textExiting);
 
   const desktopSubShown =
-    ready &&
+    copyReady &&
     (reduceMotion
       ? subVisible
-      : ["subheadline", "buttons", "hold", "transition"].includes(phase));
+      : ["subheadline", "buttons", "hold", "copy-out"].includes(phase));
 
   const desktopButtonsShown =
-    ready &&
+    copyReady &&
     (reduceMotion
       ? buttonsVisible
-      : ["buttons", "hold", "transition"].includes(phase));
+      : ["buttons", "hold", "copy-out", "buttons-out"].includes(phase));
 
   useEffect(() => {
-    if (!ready) {
-      setPhase("headline");
+    if (!copyReady) {
+      setPhase("image-in");
       setHasStarted(false);
       return;
     }
 
     if (!hasStarted) {
       setHasStarted(true);
-      setPhase("headline");
+      setPhase("image-in");
     }
-  }, [ready, hasStarted]);
+  }, [copyReady, hasStarted]);
 
   useEffect(() => {
-    if (!ready || !hasStarted) return;
+    if (!copyReady || !hasStarted) return;
 
     if (reduceMotion) {
       const loop = setInterval(() => {
@@ -203,7 +220,7 @@ export function HeroSection({
 
       if (phase === "transition") {
         setSlideIndex((i) => (i + 1) % SLIDES.length);
-        setPhase("headline");
+        setPhase("image-in");
         return;
       }
 
@@ -211,7 +228,16 @@ export function HeroSection({
     }, duration);
 
     return () => clearTimeout(t);
-  }, [phase, reduceMotion, ready, hasStarted, slideIndex]);
+  }, [phase, reduceMotion, copyReady, hasStarted, slideIndex]);
+
+  if (!imageReady) {
+    return (
+      <section
+        id="overview"
+        className="relative min-h-[100dvh] overflow-hidden bg-black"
+      />
+    );
+  }
 
   return (
     <section
@@ -245,8 +271,8 @@ export function HeroSection({
           slideIndex={slideIndex}
           headlineVisible={headlineVisible}
           subVisible={subVisible}
+          textExiting={textExiting}
           lines={[...slide.headlineLines]}
-          reveal="fade"
           headlineClassName={`hero-headline hero-headline-primary text-white${slideIndex === 0 ? " hero-headline-compact" : ""}`}
           subClassName={`hero-subhead text-balance${slideIndex === 0 ? " hero-subhead-compact" : ""}`}
           topPadding="max-md"
@@ -255,6 +281,7 @@ export function HeroSection({
         <div className="hero-copy-bottom pointer-events-auto flex w-full flex-col items-center px-4 pb-[max(2.25rem,env(safe-area-inset-bottom))] sm:px-6">
           <HeroCtaButtons
             visible={buttonsVisible}
+            fadingOut={buttonsExiting}
             slideKey={slideIndex}
             onWatchFilm={onWatchFilm}
             onRegister={onRegister}
@@ -272,9 +299,9 @@ export function HeroSection({
               headlineVisible={desktopHeadlineShown}
               subVisible={desktopSubShown}
               buttonsVisible={desktopButtonsShown}
-              fadingOut={desktopFadingOut}
+              textExiting={textExiting}
+              buttonsExiting={buttonsExiting}
               lines={[...slide.desktopHeadlineLines]}
-              reveal="fade"
               headlineClassName="hero-headline hero-headline-primary hero-headline-desktop text-white"
               subClassName="hero-subhead hero-subhead-desktop text-balance"
               onWatchFilm={onWatchFilm}
@@ -294,9 +321,8 @@ export function HeroSection({
               slideIndex={slideIndex}
               headlineVisible={desktopHeadlineShown}
               subVisible={desktopSubShown}
-              fadingOut={desktopFadingOut}
+              textExiting={textExiting}
               lines={[...slide.desktopHeadlineLines]}
-              reveal="fade"
               headlineClassName="hero-headline hero-headline-primary hero-headline-desktop hero-headline-desktop-wide text-white"
               subClassName="hero-subhead hero-subhead-desktop-wide"
               topPadding="desktop"
@@ -307,7 +333,7 @@ export function HeroSection({
           <div className="hero-desktop-wide-bottom pointer-events-auto flex items-center justify-center px-8 pb-10 lg:px-12">
             <HeroCtaButtons
               visible={desktopButtonsShown}
-              fadingOut={desktopFadingOut}
+              fadingOut={buttonsExiting}
               slideKey={slideIndex}
               onWatchFilm={onWatchFilm}
               onRegister={onRegister}
@@ -337,12 +363,12 @@ function HeroCopyBlock({
   headlineVisible,
   subVisible,
   lines,
-  reveal,
   headlineClassName,
   subClassName,
   topPadding,
   align,
-  fadingOut = false,
+  textExiting = false,
+  buttonsExiting = false,
   buttonsVisible,
   onWatchFilm,
   onRegister,
@@ -352,12 +378,12 @@ function HeroCopyBlock({
   headlineVisible: boolean;
   subVisible: boolean;
   lines: string[];
-  reveal: "fade" | "drift";
   headlineClassName: string;
   subClassName: string;
   topPadding: "max-md" | "desktop";
   align?: "side" | "wide";
-  fadingOut?: boolean;
+  textExiting?: boolean;
+  buttonsExiting?: boolean;
   buttonsVisible?: boolean;
   onWatchFilm?: () => void;
   onRegister?: () => void;
@@ -367,10 +393,10 @@ function HeroCopyBlock({
   const isWideLayout = isDesktopStack && align === "wide";
   const fixedStack = isSideLayout || !isDesktopStack || isWideLayout;
   const stagger = isWideLayout ? 0.1 : isDesktopStack ? 0.14 : 0.12;
-  const headlineShown = headlineVisible || (fadingOut && isDesktopStack);
-  const subShown = subVisible || (fadingOut && isDesktopStack);
-  const headlineActive = headlineVisible && !fadingOut;
-  const subActive = subVisible && !fadingOut;
+  const headlineShown = headlineVisible;
+  const subShown = subVisible;
+  const headlineActive = headlineVisible && !textExiting && !buttonsExiting;
+  const subActive = subVisible && !textExiting && !buttonsExiting;
   const subMounted = fixedStack ? headlineShown : subShown;
 
   return (
@@ -437,7 +463,7 @@ function HeroCopyBlock({
         <div className="hero-fixed-cta-slot mt-7 flex w-full justify-start">
           <HeroCtaButtons
             visible={!!buttonsVisible}
-            fadingOut={fadingOut}
+            fadingOut={buttonsExiting}
             slideKey={slideIndex}
             onWatchFilm={onWatchFilm}
             onRegister={onRegister}
