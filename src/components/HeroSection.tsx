@@ -43,7 +43,6 @@ const SLIDES = [
     mobile: "/hero/hero-2-mobile.jpeg",
     desktopFocus: "center 46%",
     desktopLayout: "wide",
-    desktopImageScale: 0.86,
   },
   {
     id: 2,
@@ -60,7 +59,6 @@ const SLIDES = [
     mobile: "/hero/hero-3-mobile.jpeg",
     desktopFocus: "center 48%",
     desktopLayout: "wide",
-    desktopImageScale: 0.86,
   },
 ] as const;
 
@@ -229,7 +227,6 @@ export function HeroSection({
             priority={i === 0}
             showcase={productFocus && i === slideIndex}
             cinematicDrift={isDesktop && s.desktopLayout === "wide"}
-            imageScale={"desktopImageScale" in s ? s.desktopImageScale : 1}
           />
         ))}
       </div>
@@ -584,7 +581,6 @@ function HeroImageLayer({
   priority,
   showcase,
   cinematicDrift,
-  imageScale,
 }: {
   slide: (typeof SLIDES)[number];
   active: boolean;
@@ -593,12 +589,10 @@ function HeroImageLayer({
   priority: boolean;
   showcase: boolean;
   cinematicDrift: boolean;
-  imageScale: number;
 }) {
   const duration = reduceMotion ? 0.6 : 3.8;
   const crossfadeEase = luxuryEase;
   const driftActive = active && cinematicDrift && !reduceMotion;
-  const baseScale = imageScale;
 
   return (
     <motion.div
@@ -629,11 +623,11 @@ function HeroImageLayer({
           animate={
             driftActive
               ? {
-                  scale: [baseScale * 1.02, baseScale * 0.99, baseScale * 0.97],
-                  x: [0, "-0.22%", "0.1%"],
-                  y: [0, "-0.12%", 0],
+                  scale: [1.04, 1.02, 1],
+                  x: [0, "-0.2%", "0.08%"],
+                  y: [0, "-0.1%", 0],
                 }
-              : { scale: baseScale, x: 0, y: 0 }
+              : { scale: 1, x: 0, y: 0 }
           }
           transition={{
             duration: driftActive ? 22 : 1.4,
