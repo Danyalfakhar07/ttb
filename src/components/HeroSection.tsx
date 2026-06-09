@@ -8,6 +8,8 @@ import { LuxuryButton } from "./ui/LuxuryButton";
 import { CinematicLines, CinematicParagraph } from "./ui/CinematicText";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
+const IMAGE_FADE_IN = 5.8;
+const IMAGE_FADE_OUT = 6.4;
 
 const SLIDES = [
   {
@@ -93,7 +95,7 @@ const PHASE_DURATION: Record<HeroPhase, number> = {
   subheadline: 2800,
   buttons: 2000,
   hold: 5000,
-  transition: 3800,
+  transition: 6800,
 };
 
 interface HeroSectionProps {
@@ -114,6 +116,7 @@ export function HeroSection({
   const [hasStarted, setHasStarted] = useState(false);
 
   const slide = SLIDES[slideIndex];
+  const nextSlideIndex = (slideIndex + 1) % SLIDES.length;
   const transitioning = phase === "transition";
   const productFocus =
     !ready ||
@@ -218,12 +221,11 @@ export function HeroSection({
           <HeroImageLayer
             key={s.id}
             slide={s}
-            active={i === slideIndex}
-            exiting={false}
+            active={!transitioning && i === slideIndex}
+            entering={transitioning && i === nextSlideIndex}
+            exiting={transitioning && i === slideIndex}
             reduceMotion={!!reduceMotion}
             priority={i === 0}
-            showcase={false}
-            cinematicDrift={false}
           />
         ))}
       </div>
@@ -557,21 +559,40 @@ function HeroAtmosphere({
 function HeroImageLayer({
   slide,
   active,
+  entering,
+  exiting,
   reduceMotion,
   priority,
 }: {
   slide: (typeof SLIDES)[number];
   active: boolean;
+  entering: boolean;
   exiting: boolean;
   reduceMotion: boolean;
   priority: boolean;
-  showcase: boolean;
-  cinematicDrift: boolean;
 }) {
-  if (!active) return null;
+  const visible = active || entering || exiting;
+  if (!visible) return null;
+
+  const targetOpacity = exiting ? 0 : 1;
+  const fadeDuration = reduceMotion
+    ? 0.5
+    : exiting
+      ? IMAGE_FADE_OUT
+      : IMAGE_FADE_IN;
 
   return (
-    <div className="absolute inset-0 z-[1] [transform:translateZ(0)]">
+    <motion.div
+      className="absolute inset-0 [transform:translateZ(0)]"
+      initial={entering && !reduceMotion ? { opacity: 0 } : false}
+      animate={{
+        opacity: targetOpacity,
+        zIndex: entering || active ? 2 : 1,
+      }}
+      transition={{
+        opacity: { duration: fadeDuration, ease: luxuryEase },
+      }}
+    >
       <div className="absolute inset-[-3%] md:inset-0">
         <div className="absolute inset-0 md:hidden">
           <Image
@@ -595,7 +616,7 @@ function HeroImageLayer({
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
