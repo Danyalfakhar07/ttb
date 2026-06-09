@@ -41,8 +41,9 @@ const SLIDES = [
       "Precision climate stewardship for rare species, delicate growth, and enduring indoor vitality.",
     desktop: "/hero/hero-2-desktop.jpeg",
     mobile: "/hero/hero-2-mobile.jpeg",
-    desktopFocus: "center center",
+    desktopFocus: "center 46%",
     desktopLayout: "wide",
+    desktopImageScale: 0.86,
   },
   {
     id: 2,
@@ -57,8 +58,9 @@ const SLIDES = [
       "Crafted for collectors, hospitality, education, and spaces where living design defines the atmosphere.",
     desktop: "/hero/hero-3-desktop.jpeg",
     mobile: "/hero/hero-3-mobile.jpeg",
-    desktopFocus: "center center",
+    desktopFocus: "center 48%",
     desktopLayout: "wide",
+    desktopImageScale: 0.86,
   },
 ] as const;
 
@@ -227,6 +229,7 @@ export function HeroSection({
             priority={i === 0}
             showcase={productFocus && i === slideIndex}
             cinematicDrift={isDesktop && s.desktopLayout === "wide"}
+            imageScale={"desktopImageScale" in s ? s.desktopImageScale : 1}
           />
         ))}
       </div>
@@ -287,7 +290,7 @@ export function HeroSection({
 
       {desktopCopyMounted && slide.desktopLayout === "wide" && (
         <div className="pointer-events-none absolute inset-0 z-10 hidden min-h-[100dvh] md:grid md:grid-rows-[auto_1fr_auto]">
-          <div className="hero-desktop-wide-top pointer-events-auto flex flex-col items-center px-8 pt-[max(5.5rem,11vh)] text-center lg:px-12">
+          <div className="hero-desktop-wide-top pointer-events-auto flex w-full flex-col items-center px-8 pt-[max(5.25rem,10vh)] text-center lg:px-12">
             <HeroCopyBlock
               slide={slide}
               slideIndex={slideIndex}
@@ -297,7 +300,7 @@ export function HeroSection({
               lines={[...slide.desktopHeadlineLines]}
               reveal="fade"
               headlineClassName="hero-headline hero-headline-primary hero-headline-desktop hero-headline-desktop-wide text-white"
-              subClassName="hero-subhead hero-subhead-desktop hero-subhead-desktop-wide text-balance"
+              subClassName="hero-subhead hero-subhead-desktop-wide"
               topPadding="desktop"
               align="wide"
             />
@@ -420,7 +423,7 @@ function HeroCopyBlock({
           isSideLayout
             ? "hero-desktop-sub-slot mt-5 w-full max-w-[34ch] text-left"
             : isWideLayout
-              ? "mt-4 w-full max-w-[52ch] text-center"
+              ? "mx-auto mt-4 flex w-full max-w-[50ch] flex-col items-center text-center"
               : isDesktopStack
                 ? "hero-desktop-sub-slot mt-4 w-full max-w-[580px] text-center"
                 : "mx-auto mt-4 w-full max-w-[560px] text-center"
@@ -581,6 +584,7 @@ function HeroImageLayer({
   priority,
   showcase,
   cinematicDrift,
+  imageScale,
 }: {
   slide: (typeof SLIDES)[number];
   active: boolean;
@@ -589,10 +593,12 @@ function HeroImageLayer({
   priority: boolean;
   showcase: boolean;
   cinematicDrift: boolean;
+  imageScale: number;
 }) {
   const duration = reduceMotion ? 0.6 : 3.8;
   const crossfadeEase = luxuryEase;
   const driftActive = active && cinematicDrift && !reduceMotion;
+  const baseScale = imageScale;
 
   return (
     <motion.div
@@ -622,8 +628,12 @@ function HeroImageLayer({
           initial={false}
           animate={
             driftActive
-              ? { scale: [1.07, 1.04, 1.01], x: [0, "-0.28%", "0.12%"], y: [0, "-0.18%", 0] }
-              : { scale: 1, x: 0, y: 0 }
+              ? {
+                  scale: [baseScale * 1.02, baseScale * 0.99, baseScale * 0.97],
+                  x: [0, "-0.22%", "0.1%"],
+                  y: [0, "-0.12%", 0],
+                }
+              : { scale: baseScale, x: 0, y: 0 }
           }
           transition={{
             duration: driftActive ? 22 : 1.4,

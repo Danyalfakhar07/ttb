@@ -301,9 +301,26 @@ h6,
     color: rgba(255, 255, 255, 0.82);
   }
 
+  .hero-desktop-wide {
+    align-items: center;
+    text-align: center;
+  }
+
   .hero-desktop-wide .hero-headline-stack {
     align-items: center;
     gap: 0;
+    width: 100%;
+  }
+
+  .hero-desktop-wide .hero-headline-line-slot {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .hero-desktop-wide .hero-headline-line {
+    text-align: center;
+    width: 100%;
+    white-space: nowrap;
   }
 
   .hero-headline-desktop-wide {
@@ -312,12 +329,14 @@ h6,
     text-align: center;
     white-space: nowrap;
     max-width: none;
+    margin-inline: auto;
   }
 
   .hero-subhead-desktop-wide {
     font-size: clamp(0.82rem, 0.95vw, 0.94rem);
     line-height: 1.52;
-    max-width: 48ch;
+    width: 100%;
+    max-width: 50ch;
     margin-inline: auto;
     text-align: center;
     color: rgba(255, 255, 255, 0.8);
@@ -325,6 +344,8 @@ h6,
 
   .hero-desktop-wide-top {
     align-self: start;
+    width: 100%;
+    justify-items: center;
   }
 
   .hero-desktop-wide-bottom {
