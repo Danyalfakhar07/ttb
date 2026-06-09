@@ -274,7 +274,7 @@ export function HeroSection({
     return (
       <section
         id="overview"
-        className="relative min-h-[100dvh] overflow-hidden bg-black"
+        className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-black"
       />
     );
   }
@@ -282,7 +282,7 @@ export function HeroSection({
   return (
     <section
       id="overview"
-      className="relative min-h-[100dvh] overflow-hidden bg-black [backface-visibility:hidden]"
+      className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-black [backface-visibility:hidden]"
     >
       <div className="pointer-events-none absolute inset-0">
         {SLIDES.map((s, i) => (
@@ -315,7 +315,7 @@ export function HeroSection({
       />
 
       {/* Mobile — top copy / product / bottom CTAs */}
-      <div className="pointer-events-none relative z-10 min-h-[100dvh] grid grid-rows-[auto_1fr_auto] md:hidden">
+      <div className="pointer-events-none relative z-10 h-full min-h-0 grid grid-rows-[auto_1fr_auto] md:hidden">
         <HeroCopyBlock
           slide={slide}
           slideIndex={slideIndex}
@@ -364,7 +364,7 @@ export function HeroSection({
       )}
 
       {desktopWideTopMounted && slide.desktopLayout === "wide" && (
-        <div className="pointer-events-none absolute inset-0 z-10 hidden min-h-[100dvh] md:grid md:grid-rows-[auto_1fr_auto]">
+        <div className="pointer-events-none absolute inset-0 z-10 hidden h-full md:grid md:grid-rows-[auto_1fr_auto]">
           <div className="hero-desktop-wide-top pointer-events-auto flex w-full flex-col items-center px-8 pt-[max(6.25rem,12.5vh)] text-center lg:px-12">
             <HeroCopyBlock
               slide={slide}

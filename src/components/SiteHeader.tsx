@@ -29,6 +29,7 @@ export function SiteHeader({
   const isHome = variant === "home";
   const show = isHome ? visible : true;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -37,40 +38,58 @@ export function SiteHeader({
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const updateScroll = () => {
+      setScrolled(window.scrollY > 16);
+    };
+
+    updateScroll();
+    window.addEventListener("scroll", updateScroll, { passive: true });
+    return () => window.removeEventListener("scroll", updateScroll);
+  }, []);
+
   const logo = <BrandLogo size="header" />;
 
   return (
     <>
       <motion.header
-        className="fixed top-0 right-0 left-0 z-50 px-5 pt-5 md:px-10 md:pt-8"
+        className={`fixed top-0 right-0 left-0 z-50 px-5 pt-5 pb-5 transition-[background-color,border-color] duration-500 md:px-10 md:pt-8 md:pb-8 ${
+          scrolled
+            ? "border-b border-white/[0.06] bg-black"
+            : "border-b border-transparent bg-transparent"
+        }`}
         initial={isHome ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
         animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
         transition={{ duration: isHome ? 1.5 : 0, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4">
-          {isHome ? (
-            <a href="#overview" className="shrink-0 transition-opacity duration-700 hover:opacity-80">
-              {logo}
-            </a>
-          ) : (
-            <Link href="/" className="shrink-0 transition-opacity duration-700 hover:opacity-80">
-              {logo}
-            </Link>
-          )}
-
-          <nav className="hidden items-center gap-6 lg:gap-7 md:flex">
-            {NAV_LINKS.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-[10px] uppercase tracking-[0.28em] text-white/50 transition-colors duration-500 hover:text-white/90"
-              >
-                {item.label}
+        <div className="relative mx-auto flex max-w-[1400px] items-center">
+          <div className="relative z-10 shrink-0">
+            {isHome ? (
+              <a href="#overview" className="transition-opacity duration-700 hover:opacity-80">
+                {logo}
+              </a>
+            ) : (
+              <Link href="/" className="transition-opacity duration-700 hover:opacity-80">
+                {logo}
               </Link>
-            ))}
+            )}
+          </div>
+
+          <nav className="pointer-events-none absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:block">
+            <div className="pointer-events-auto flex items-center gap-6 lg:gap-7">
+              {NAV_LINKS.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-[10px] uppercase tracking-[0.28em] text-white/50 transition-colors duration-500 hover:text-white/90"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </nav>
 
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="relative z-10 ml-auto flex shrink-0 items-center gap-3">
             <LuxuryButton
               variant="secondary"
               className="!px-4 !py-2 !text-[9px] md:!px-5"
