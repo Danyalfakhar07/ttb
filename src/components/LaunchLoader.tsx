@@ -1,21 +1,23 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BrandNameReveal } from "./ui/CinematicText";
 import { BrandLogo } from "./ui/BrandLogo";
 
 interface LaunchLoaderProps {
   onComplete: () => void;
+  onExitComplete?: () => void;
 }
 
 type LoaderPhase = "logo" | "name" | "hold" | "exit";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 
-export function LaunchLoader({ onComplete }: LaunchLoaderProps) {
+export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) {
   const [phase, setPhase] = useState<LoaderPhase>("logo");
   const [visible, setVisible] = useState(true);
+  const hasSignalledRef = useRef(false);
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("name"), 2000);
@@ -30,11 +32,18 @@ export function LaunchLoader({ onComplete }: LaunchLoaderProps) {
     };
   }, []);
 
+  useEffect(() => {
+    if (phase === "exit" && !hasSignalledRef.current) {
+      hasSignalledRef.current = true;
+      onComplete();
+    }
+  }, [phase, onComplete]);
+
   const showName = phase === "name" || phase === "hold" || phase === "exit";
   const nameActive = phase === "name" || phase === "hold";
 
   return (
-    <AnimatePresence onExitComplete={onComplete}>
+    <AnimatePresence onExitComplete={onExitComplete}>
       {visible && (
         <motion.div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black"

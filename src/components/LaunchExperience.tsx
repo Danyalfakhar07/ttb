@@ -9,15 +9,24 @@ import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 import { SmoothScroll } from "./SmoothScroll";
 
+const INTRO_SESSION_KEY = "ttb-home-intro-complete";
+
+function hasSeenIntro(): boolean {
+  if (typeof window === "undefined") return false;
+  return sessionStorage.getItem(INTRO_SESSION_KEY) === "1";
+}
+
 export function LaunchExperience() {
-  const [loaded, setLoaded] = useState(false);
-  const [headerVisible, setHeaderVisible] = useState(false);
-  const [copyReady, setCopyReady] = useState(false);
+  const [loaded, setLoaded] = useState(hasSeenIntro);
+  const [loaderVisible, setLoaderVisible] = useState(() => !hasSeenIntro());
+  const [headerVisible, setHeaderVisible] = useState(hasSeenIntro);
+  const [copyReady, setCopyReady] = useState(hasSeenIntro);
 
   const handleLoadComplete = useCallback(() => {
+    sessionStorage.setItem(INTRO_SESSION_KEY, "1");
     setLoaded(true);
-    setTimeout(() => setHeaderVisible(true), 900);
-    setTimeout(() => setCopyReady(true), 1900);
+    setTimeout(() => setHeaderVisible(true), 1100);
+    setTimeout(() => setCopyReady(true), 2400);
   }, []);
 
   const scrollTo = (id: string) => {
@@ -27,7 +36,12 @@ export function LaunchExperience() {
 
   return (
     <>
-      {!loaded && <LaunchLoader onComplete={handleLoadComplete} />}
+      {loaderVisible && (
+        <LaunchLoader
+          onComplete={handleLoadComplete}
+          onExitComplete={() => setLoaderVisible(false)}
+        />
+      )}
 
       {loaded && (
         <SmoothScroll enabled>

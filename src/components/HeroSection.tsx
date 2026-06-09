@@ -1,8 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { LuxuryButton } from "./ui/LuxuryButton";
 import {
@@ -14,6 +14,7 @@ import {
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 const IMAGE_FADE_IN = 4.2;
 const IMAGE_FADE_OUT = 4.8;
+const INITIAL_REVEAL_DURATION = 2.8;
 
 const SLIDES = [
   {
@@ -76,17 +77,9 @@ const DESKTOP_TEXT_PHASES: HeroPhase[] = [
   "copy-out",
 ];
 
-const DESKTOP_BUTTONS_PHASES: HeroPhase[] = [
-  "buttons",
-  "hold",
-  "copy-out",
-  "buttons-out",
-];
+const DESKTOP_BUTTONS_PHASES: HeroPhase[] = ["buttons", "hold", "copy-out"];
 
-const DESKTOP_SIDE_PHASES: HeroPhase[] = [
-  ...DESKTOP_TEXT_PHASES,
-  "buttons-out",
-];
+const DESKTOP_SIDE_PHASES: HeroPhase[] = [...DESKTOP_TEXT_PHASES];
 
 type HeroPhase =
   | "image-in"
@@ -105,7 +98,6 @@ const PHASE_ORDER: HeroPhase[] = [
   "buttons",
   "hold",
   "copy-out",
-  "buttons-out",
   "transition",
 ];
 
@@ -116,7 +108,7 @@ const PHASE_DURATION: Record<HeroPhase, number> = {
   buttons: 2000,
   hold: 5000,
   "copy-out": 3000,
-  "buttons-out": 3000,
+  "buttons-out": 0,
   transition: 5200,
 };
 
@@ -138,12 +130,15 @@ export function HeroSection({
   const [slideIndex, setSlideIndex] = useState(0);
   const [phase, setPhase] = useState<HeroPhase>("image-in");
   const [hasStarted, setHasStarted] = useState(false);
+  const [revealAnimDone, setRevealAnimDone] = useState(false);
+  const initialRevealDoneRef = useRef(false);
 
   const slide = SLIDES[slideIndex];
   const nextSlideIndex = (slideIndex + 1) % SLIDES.length;
   const transitioning = phase === "transition";
+  const isInitialReveal = phase === "image-in" && !initialRevealDoneRef.current;
   const textExiting = phase === "copy-out";
-  const buttonsExiting = phase === "buttons-out";
+  const buttonsExiting = phase === "copy-out";
   const productFocus = !imageReady || (!reduceMotion && transitioning);
 
   const copyActive =
@@ -172,8 +167,7 @@ export function HeroSection({
   const buttonsVisible =
     copyReady &&
     !productFocus &&
-    (reduceMotion ||
-      ["buttons", "hold", "copy-out", "buttons-out"].includes(phase));
+    (reduceMotion || ["buttons", "hold", "copy-out"].includes(phase));
 
   const desktopSideMounted =
     copyReady &&
@@ -200,14 +194,14 @@ export function HeroSection({
 
   const desktopButtonsShown =
     copyReady &&
-    (reduceMotion
-      ? buttonsVisible
-      : ["buttons", "hold", "copy-out", "buttons-out"].includes(phase));
+    (reduceMotion ? buttonsVisible : DESKTOP_BUTTONS_PHASES.includes(phase));
 
   useEffect(() => {
-    if (!copyReady) {
+    if (!imageReady) {
       setPhase("image-in");
       setHasStarted(false);
+      setRevealAnimDone(false);
+      initialRevealDoneRef.current = false;
       return;
     }
 
@@ -215,21 +209,39 @@ export function HeroSection({
       setHasStarted(true);
       setPhase("image-in");
     }
-  }, [copyReady, hasStarted]);
+  }, [imageReady, hasStarted]);
 
   useEffect(() => {
-    if (!copyReady || !hasStarted) return;
+    if (!imageReady || revealAnimDone) return;
+
+    const t = setTimeout(
+      () => setRevealAnimDone(true),
+      INITIAL_REVEAL_DURATION * 1000,
+    );
+    return () => clearTimeout(t);
+  }, [imageReady, revealAnimDone]);
+
+  useEffect(() => {
+    if (!imageReady || !hasStarted) return;
 
     if (reduceMotion) {
+      if (!copyReady) return;
       const loop = setInterval(() => {
         setSlideIndex((i) => (i + 1) % SLIDES.length);
       }, 9000);
       return () => clearInterval(loop);
     }
 
-    const duration = PHASE_DURATION[phase];
+    let duration = PHASE_DURATION[phase];
+
+    if (phase === "image-in" && isInitialReveal && slideIndex === 0) {
+      duration =
+        copyReady && revealAnimDone ? 80 : 120;
+    }
 
     const t = setTimeout(() => {
+      if (phase === "image-in" && (!copyReady || !revealAnimDone)) return;
+
       const idx = PHASE_ORDER.indexOf(phase);
       const next = PHASE_ORDER[idx + 1];
 
@@ -239,11 +251,24 @@ export function HeroSection({
         return;
       }
 
+      if (phase === "image-in" && !initialRevealDoneRef.current) {
+        initialRevealDoneRef.current = true;
+      }
+
       setPhase(next ?? "image-in");
     }, duration);
 
     return () => clearTimeout(t);
-  }, [phase, reduceMotion, copyReady, hasStarted, slideIndex]);
+  }, [
+    phase,
+    reduceMotion,
+    imageReady,
+    copyReady,
+    hasStarted,
+    slideIndex,
+    isInitialReveal,
+    revealAnimDone,
+  ]);
 
   if (!imageReady) {
     return (
@@ -267,11 +292,21 @@ export function HeroSection({
             active={!transitioning && i === slideIndex}
             entering={transitioning && i === nextSlideIndex}
             exiting={transitioning && i === slideIndex}
+            revealing={isInitialReveal && i === slideIndex && !transitioning}
             reduceMotion={!!reduceMotion}
             priority={i === 0}
           />
         ))}
       </div>
+
+      {isInitialReveal && (
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-[4] bg-black"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 0 }}
+          transition={{ duration: INITIAL_REVEAL_DURATION, ease: luxuryEase }}
+        />
+      )}
 
       <HeroAtmosphere
         copyActive={copyActive}
@@ -604,6 +639,7 @@ function HeroImageLayer({
   active,
   entering,
   exiting,
+  revealing,
   reduceMotion,
   priority,
 }: {
@@ -611,22 +647,25 @@ function HeroImageLayer({
   active: boolean;
   entering: boolean;
   exiting: boolean;
+  revealing: boolean;
   reduceMotion: boolean;
   priority: boolean;
 }) {
   const targetOpacity = exiting ? 0 : active || entering ? 1 : 0;
   const fadeDuration = reduceMotion
     ? 0.4
-    : exiting
-      ? IMAGE_FADE_OUT
-      : entering
-        ? IMAGE_FADE_IN
-        : 0.35;
+    : revealing
+      ? INITIAL_REVEAL_DURATION
+      : exiting
+        ? IMAGE_FADE_OUT
+        : entering
+          ? IMAGE_FADE_IN
+          : 0.35;
 
   return (
     <motion.div
       className="absolute inset-0 [transform:translateZ(0)]"
-      initial={false}
+      initial={revealing ? { opacity: 0 } : false}
       animate={{
         opacity: targetOpacity,
         zIndex: entering || active ? 2 : exiting ? 1 : 0,

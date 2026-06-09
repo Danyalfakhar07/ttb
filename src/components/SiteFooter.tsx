@@ -29,12 +29,12 @@ export function SiteFooter() {
           >
             Intellectual Property
           </Link>
-          <a
-            href="#inquiry"
+          <Link
+            href="/#inquiry"
             className="text-[9px] uppercase tracking-[0.28em] text-white/35 transition-colors hover:text-white/70"
           >
             Inquiry
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>
