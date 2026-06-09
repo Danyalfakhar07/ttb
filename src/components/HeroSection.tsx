@@ -111,7 +111,6 @@ export function HeroSection({
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [slideIndex, setSlideIndex] = useState(0);
   const [phase, setPhase] = useState<HeroPhase>("image-in");
-  const [prevSlideIndex, setPrevSlideIndex] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
 
   const slide = SLIDES[slideIndex];
@@ -186,7 +185,6 @@ export function HeroSection({
 
     if (reduceMotion) {
       const loop = setInterval(() => {
-        setPrevSlideIndex(slideIndex);
         setSlideIndex((i) => (i + 1) % SLIDES.length);
       }, 9000);
       return () => clearInterval(loop);
@@ -199,7 +197,6 @@ export function HeroSection({
       const next = PHASE_ORDER[idx + 1];
 
       if (phase === "transition") {
-        setPrevSlideIndex(slideIndex);
         setSlideIndex((i) => (i + 1) % SLIDES.length);
         setPhase("image-in");
         return;
@@ -222,11 +219,11 @@ export function HeroSection({
             key={s.id}
             slide={s}
             active={i === slideIndex}
-            exiting={transitioning && i === prevSlideIndex && i !== slideIndex}
+            exiting={false}
             reduceMotion={!!reduceMotion}
             priority={i === 0}
-            showcase={productFocus && i === slideIndex}
-            cinematicDrift={isDesktop && s.desktopLayout === "wide"}
+            showcase={false}
+            cinematicDrift={false}
           />
         ))}
       </div>
@@ -245,7 +242,7 @@ export function HeroSection({
           headlineVisible={headlineVisible}
           subVisible={subVisible}
           lines={[...slide.headlineLines]}
-          reveal="drift"
+          reveal="fade"
           headlineClassName={`hero-headline hero-headline-primary text-white${slideIndex === 0 ? " hero-headline-compact" : ""}`}
           subClassName={`hero-subhead text-balance${slideIndex === 0 ? " hero-subhead-compact" : ""}`}
           topPadding="max-md"
@@ -263,7 +260,7 @@ export function HeroSection({
 
       {/* Desktop — slide 1: side column | slides 2–3: top headline + bottom CTAs */}
       {desktopCopyMounted && slide.desktopLayout === "side" && (
-        <div className="pointer-events-none absolute inset-0 z-10 hidden md:grid md:grid-cols-12 md:items-center md:px-12 lg:px-16 xl:px-20">
+        <div className="pointer-events-none absolute inset-0 z-10 hidden md:grid md:grid-cols-12 md:items-start md:px-12 md:pt-[max(5.5rem,11vh)] lg:px-16 xl:px-20">
           <div className="pointer-events-auto col-span-5 col-start-1 xl:col-span-4">
             <HeroCopyBlock
               slide={slide}
@@ -364,21 +361,22 @@ function HeroCopyBlock({
   const isDesktopStack = topPadding === "desktop";
   const isSideLayout = isDesktopStack && align === "side";
   const isWideLayout = isDesktopStack && align === "wide";
+  const fixedStack = isSideLayout || (!isDesktopStack && slideIndex === 0);
   const stagger = isWideLayout ? 0 : isDesktopStack ? 0.34 : 0.26;
   const headlineActive = headlineVisible && !fadingOut;
   const subActive = subVisible && !fadingOut;
-  const exitDuration = 1.85;
+  const subMounted = fixedStack ? headlineVisible : subVisible;
 
   return (
     <div
       className={
         isSideLayout
-          ? "hero-desktop-stack hero-desktop-side pointer-events-auto w-full"
+          ? "hero-desktop-stack hero-desktop-side hero-fixed-stack pointer-events-auto w-full"
           : isWideLayout
             ? "hero-desktop-stack hero-desktop-wide pointer-events-auto w-full max-w-[920px]"
             : isDesktopStack
               ? "hero-desktop-stack pointer-events-auto w-full max-w-[1120px]"
-              : "hero-copy-top pointer-events-auto flex w-full flex-col items-center text-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] sm:px-6"
+              : `hero-copy-top pointer-events-auto flex w-full flex-col items-center text-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] sm:px-6${fixedStack ? " hero-fixed-stack" : ""}`
       }
     >
       <div
@@ -391,67 +389,61 @@ function HeroCopyBlock({
                 ? "hero-desktop-headline-slot flex w-full flex-col items-center"
                 : "mx-auto w-full max-w-[920px] text-center"
         }
+        style={
+          lines.length > 1 && fixedStack
+            ? { minHeight: `${lines.length * 1.12}em` }
+            : undefined
+        }
       >
-        <AnimatePresence mode="wait">
-          {headlineVisible && (
-            <motion.div
-              key={`headline-${slideIndex}-${topPadding}`}
-              className="w-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: fadingOut ? 0 : 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: fadingOut ? exitDuration : isDesktopStack ? 1.65 : 1.45, ease: luxuryEase }}
-            >
-              <CinematicLines
-                lines={lines}
-                active={headlineActive}
-                stagger={stagger}
-                reveal={reveal}
-                className="hero-headline-stack"
-                lineClassName={headlineClassName}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {headlineVisible && (
+          <CinematicLines
+            lines={lines}
+            active={headlineActive}
+            stagger={stagger}
+            reveal="fade"
+            anchored={lines.length > 1}
+            className="hero-headline-stack"
+            lineClassName={headlineClassName}
+          />
+        )}
       </div>
 
       <div
         className={
           isSideLayout
-            ? "hero-desktop-sub-slot mt-5 w-full max-w-[34ch] text-left"
+            ? "hero-fixed-sub-slot hero-desktop-sub-slot mt-5 w-full max-w-[34ch] text-left"
             : isWideLayout
               ? "mx-auto mt-4 flex w-full max-w-[50ch] flex-col items-center text-center"
               : isDesktopStack
                 ? "hero-desktop-sub-slot mt-4 w-full max-w-[580px] text-center"
-                : "mx-auto mt-4 w-full max-w-[560px] text-center"
+                : fixedStack
+                  ? "hero-fixed-sub-slot mx-auto mt-4 w-full max-w-[560px] text-center"
+                  : "mx-auto mt-4 w-full max-w-[560px] text-center"
         }
       >
-        <AnimatePresence mode="wait">
-          {subVisible && (
-            <motion.div
-              key={`sub-${slideIndex}-${topPadding}`}
-              className="w-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: fadingOut ? 0 : 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: fadingOut ? exitDuration : isDesktopStack ? 1.7 : 1.35, ease: luxuryEase }}
-            >
-              <CinematicParagraph
-                text={slide.subheadline}
-                active={subActive}
-                delay={isDesktopStack ? 0.28 : 0.2}
-                reveal={reveal}
-                className={subClassName}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {fixedStack ? (
+          subMounted && (
+            <CinematicParagraph
+              text={slide.subheadline}
+              active={subActive}
+              delay={0.1}
+              className={subClassName}
+            />
+          )
+        ) : (
+          subVisible && (
+            <CinematicParagraph
+              text={slide.subheadline}
+              active={subActive}
+              delay={isDesktopStack ? 0.2 : 0.15}
+              className={subClassName}
+            />
+          )
+        )}
       </div>
 
       {isSideLayout && onWatchFilm && onRegister && (
-        <div
-          className={`${isSideLayout ? "mt-7" : "mt-6"} w-full ${buttonsVisible ? "hero-desktop-cta-slot" : ""} ${isSideLayout ? "flex justify-start" : ""}`}
-        >
+        <div className="hero-fixed-cta-slot mt-7 flex w-full justify-start">
           <HeroCtaButtons
             visible={!!buttonsVisible}
             fadingOut={fadingOut}
@@ -459,6 +451,7 @@ function HeroCopyBlock({
             onWatchFilm={onWatchFilm}
             onRegister={onRegister}
             alignStart={isSideLayout}
+            fixedSlot
           />
         </div>
       )}
@@ -473,6 +466,7 @@ function HeroCtaButtons({
   onRegister,
   alignStart = false,
   fadingOut = false,
+  fixedSlot = false,
 }: {
   visible: boolean;
   slideKey: number;
@@ -480,47 +474,39 @@ function HeroCtaButtons({
   onRegister: () => void;
   alignStart?: boolean;
   fadingOut?: boolean;
+  fixedSlot?: boolean;
 }) {
-  const ctaOpacity = visible ? (fadingOut ? 0 : 1) : 0;
+  const show = visible && !fadingOut;
 
   return (
     <div
       className={`relative flex min-h-[5.5rem] w-full sm:min-h-[4.5rem] ${alignStart ? "items-center justify-start" : "items-center justify-center"}`}
     >
-      <motion.div
-        aria-hidden={!visible}
+      <div
+        aria-hidden={!show}
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
-        initial={false}
-        animate={{ opacity: ctaOpacity }}
-        transition={{ duration: fadingOut ? 1.85 : 1.55, ease: luxuryEase }}
+        style={{ opacity: show ? 1 : 0 }}
       >
         <div className="h-20 w-[min(92%,340px)] rounded-full bg-white/[0.03] blur-2xl sm:h-14 sm:w-[min(80%,480px)]" />
-      </motion.div>
+      </div>
 
-      <AnimatePresence mode="wait">
-        {visible && (
-          <motion.div
-            key={`cta-${slideKey}`}
-            className={`relative z-[1] flex flex-col gap-3 sm:flex-row sm:gap-4 ${alignStart ? "items-start" : "items-center"}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: ctaOpacity }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: fadingOut ? 1.85 : 1.55, ease: luxuryEase }}
-          >
-            <div className="inline-flex w-auto max-w-full">
-              <LuxuryButton cinematic onClick={onWatchFilm}>
-                <PlayIcon />
-                Watch Film
-              </LuxuryButton>
-            </div>
-            <div className="inline-flex w-auto max-w-full">
-              <LuxuryButton cinematic variant="secondary" onClick={onRegister}>
-                Register Interest
-              </LuxuryButton>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div
+        key={fixedSlot ? `cta-fixed-${slideKey}` : `cta-${slideKey}`}
+        className={`relative z-[1] flex flex-col gap-3 sm:flex-row sm:gap-4 ${alignStart ? "items-start" : "items-center"}`}
+        style={{ opacity: show ? 1 : 0, pointerEvents: show ? "auto" : "none" }}
+      >
+        <div className="inline-flex w-auto max-w-full">
+          <LuxuryButton cinematic onClick={onWatchFilm}>
+            <PlayIcon />
+            Watch Film
+          </LuxuryButton>
+        </div>
+        <div className="inline-flex w-auto max-w-full">
+          <LuxuryButton cinematic variant="secondary" onClick={onRegister}>
+            Register Interest
+          </LuxuryButton>
+        </div>
+      </div>
     </div>
   );
 }
@@ -576,11 +562,8 @@ function HeroAtmosphere({
 function HeroImageLayer({
   slide,
   active,
-  exiting,
   reduceMotion,
   priority,
-  showcase,
-  cinematicDrift,
 }: {
   slide: (typeof SLIDES)[number];
   active: boolean;
@@ -590,23 +573,11 @@ function HeroImageLayer({
   showcase: boolean;
   cinematicDrift: boolean;
 }) {
-  const duration = reduceMotion ? 0.6 : 3.8;
-  const crossfadeEase = luxuryEase;
-  const driftActive = active && cinematicDrift && !reduceMotion;
+  if (!active) return null;
 
   return (
-    <motion.div
-      className="absolute inset-0 [transform:translateZ(0)]"
-      initial={false}
-      animate={{
-        opacity: active ? 1 : exiting ? 0 : 0,
-        zIndex: active ? 2 : exiting ? 1 : 0,
-      }}
-      transition={{
-        opacity: { duration, ease: crossfadeEase },
-      }}
-    >
-      <div className="absolute inset-[-3%] md:inset-0 [transform:translateZ(0)]">
+    <div className="absolute inset-0 z-[1] [transform:translateZ(0)]">
+      <div className="absolute inset-[-3%] md:inset-0">
         <div className="absolute inset-0 md:hidden">
           <Image
             src={slide.mobile}
@@ -617,25 +588,7 @@ function HeroImageLayer({
             sizes="100vw"
           />
         </div>
-        <motion.div
-          className="absolute inset-0 hidden md:block"
-          initial={false}
-          animate={
-            driftActive
-              ? {
-                  scale: [1.04, 1.02, 1],
-                  x: [0, "-0.2%", "0.08%"],
-                  y: [0, "-0.1%", 0],
-                }
-              : { scale: 1, x: 0, y: 0 }
-          }
-          transition={{
-            duration: driftActive ? 22 : 1.4,
-            repeat: driftActive ? Infinity : 0,
-            repeatType: "mirror",
-            ease: "easeInOut",
-          }}
-        >
+        <div className="absolute inset-0 hidden md:block">
           <Image
             src={slide.desktop}
             alt=""
@@ -645,25 +598,9 @@ function HeroImageLayer({
             style={{ objectPosition: slide.desktopFocus }}
             sizes="100vw"
           />
-        </motion.div>
+        </div>
       </div>
-
-      <AnimatePresence>
-        {active && showcase && (
-          <motion.div
-            key={`sweep-${slide.id}`}
-            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent"
-            initial={{ x: "-100%", opacity: 0 }}
-            animate={{ x: ["-100%", "120%"], opacity: [0, 0.22, 0] }}
-            exit={{ opacity: 0 }}
-            transition={{
-              x: { duration: 2.8, ease: crossfadeEase, delay: 0.35 },
-              opacity: { duration: 1.2, ease: crossfadeEase },
-            }}
-          />
-        )}
-      </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
 

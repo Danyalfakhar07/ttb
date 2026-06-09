@@ -4,6 +4,7 @@ import { BRAND_FULL, BRAND_FULL_WORDS } from "@/lib/brand";
 import { motion, useReducedMotion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
+const ANCHORED_LINE_HEIGHT = 1.12;
 
 type RevealStyle = "fade" | "drift";
 
@@ -14,6 +15,8 @@ interface CinematicLinesProps {
   stagger?: number;
   active?: boolean;
   reveal?: RevealStyle;
+  /** Each line sits in a fixed row — earlier lines never move when later lines appear */
+  anchored?: boolean;
 }
 
 /** Editorial headline reveal */
@@ -23,11 +26,13 @@ export function CinematicLines({
   lineClassName = "",
   stagger = 0.2,
   active = true,
-  reveal = "drift",
+  reveal = "fade",
+  anchored = false,
 }: CinematicLinesProps) {
   const reduceMotion = useReducedMotion();
   const headlineClassName = [lineClassName, "hero-headline-line"].filter(Boolean).join(" ");
   const fadeOnly = reveal === "fade";
+  const useAnchored = anchored && lines.length > 1;
 
   if (reduceMotion) {
     return (
@@ -41,24 +46,43 @@ export function CinematicLines({
     );
   }
 
+  if (useAnchored) {
+    return (
+      <div
+        className={[className, "hero-headline-stack--anchored"].filter(Boolean).join(" ")}
+        style={{ height: `${lines.length * ANCHORED_LINE_HEIGHT}em` }}
+      >
+        {lines.map((line, lineIndex) => (
+          <motion.p
+            key={`${line}-${lineIndex}`}
+            className={[headlineClassName, "hero-headline-line--anchored"].filter(Boolean).join(" ")}
+            style={{ top: `${lineIndex * ANCHORED_LINE_HEIGHT}em` }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: active ? 1 : 0 }}
+            transition={{
+              duration: 1.6,
+              delay: active ? 0.15 + lineIndex * stagger : 0,
+              ease: luxuryEase,
+            }}
+          >
+            {line}
+          </motion.p>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className={className}>
       {lines.map((line, lineIndex) => (
-        <div
-          key={`${line}-${lineIndex}`}
-          className={fadeOnly ? "hero-headline-line-slot w-full" : "w-full overflow-hidden"}
-        >
+        <div key={`${line}-${lineIndex}`} className="w-full">
           <motion.p
             className={headlineClassName}
-            initial={{ opacity: 0, ...(fadeOnly ? {} : { y: 8 }) }}
-            animate={
-              active
-                ? { opacity: 1, ...(fadeOnly ? {} : { y: 0 }) }
-                : { opacity: 0, ...(fadeOnly ? {} : { y: -4 }) }
-            }
+            initial={{ opacity: 0 }}
+            animate={{ opacity: active ? 1 : 0 }}
             transition={{
-              duration: active ? (fadeOnly ? 2.2 : 2.05) : 1.85,
-              delay: active ? 0.2 + lineIndex * stagger : 0,
+              duration: 1.6,
+              delay: active ? 0.15 + lineIndex * stagger : 0,
               ease: luxuryEase,
             }}
           >
@@ -83,10 +107,8 @@ export function CinematicParagraph({
   className = "",
   active = true,
   delay = 0,
-  reveal = "drift",
 }: CinematicParagraphProps) {
   const reduceMotion = useReducedMotion();
-  const fadeOnly = reveal === "fade";
 
   if (reduceMotion) {
     return <p className={className}>{text}</p>;
@@ -95,15 +117,11 @@ export function CinematicParagraph({
   return (
     <motion.p
       className={className}
-      initial={{ opacity: 0, ...(fadeOnly ? {} : { y: 6 }) }}
-      animate={
-        active
-          ? { opacity: 1, ...(fadeOnly ? {} : { y: 0 }) }
-          : { opacity: 0, ...(fadeOnly ? {} : { y: -3 }) }
-      }
+      initial={{ opacity: 0 }}
+      animate={{ opacity: active ? 1 : 0 }}
       transition={{
-        duration: active ? (fadeOnly ? 2.05 : 1.85) : 1.8,
-        delay: active ? delay + 0.12 : 0,
+        duration: 1.5,
+        delay: active ? delay : 0,
         ease: luxuryEase,
       }}
     >
@@ -133,8 +151,8 @@ export function BrandNameReveal({ active = true }: BrandNameRevealProps) {
         <motion.span
           key={word}
           className="block text-center font-display text-[clamp(1.1rem,4.5vw,1.65rem)] font-light tracking-[0.28em] text-white/85 uppercase"
-          initial={{ opacity: 0, y: 6 }}
-          animate={active ? { opacity: 1, y: 0 } : { opacity: 0, y: -3 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: active ? 1 : 0 }}
           transition={{
             duration: 1.2,
             delay: active ? 0.18 + i * 0.18 : 0,
