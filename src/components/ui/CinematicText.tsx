@@ -4,6 +4,7 @@ import { BRAND_FULL, BRAND_FULL_WORDS } from "@/lib/brand";
 import { motion, useReducedMotion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
+export const TEXT_FADE_DURATION = 2.35;
 
 type RevealStyle = "fade" | "drift";
 
@@ -23,14 +24,13 @@ export function CinematicLines({
   lines,
   className = "",
   lineClassName = "",
-  stagger = 0.2,
+  stagger = 0.18,
   active = true,
   reveal = "fade",
   anchored = false,
 }: CinematicLinesProps) {
   const reduceMotion = useReducedMotion();
   const headlineClassName = [lineClassName, "hero-headline-line"].filter(Boolean).join(" ");
-  const fadeOnly = reveal === "fade";
   const useAnchored = anchored && lines.length > 1;
 
   if (reduceMotion) {
@@ -56,11 +56,11 @@ export function CinematicLines({
           <div key={`${line}-${lineIndex}`} className="hero-headline-row-slot">
             <motion.p
               className="hero-headline-line"
-              initial={{ opacity: 0 }}
+              initial={false}
               animate={{ opacity: active ? 1 : 0 }}
               transition={{
-                duration: 0.95,
-                delay: active ? 0.06 + lineIndex * stagger : 0,
+                duration: TEXT_FADE_DURATION,
+                delay: active ? lineIndex * stagger : 0,
                 ease: luxuryEase,
               }}
             >
@@ -78,11 +78,11 @@ export function CinematicLines({
         <div key={`${line}-${lineIndex}`} className="w-full">
           <motion.p
             className={headlineClassName}
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: active ? 1 : 0 }}
             transition={{
-              duration: 0.95,
-              delay: active ? 0.06 + lineIndex * stagger : 0,
+              duration: TEXT_FADE_DURATION,
+              delay: active ? lineIndex * stagger : 0,
               ease: luxuryEase,
             }}
           >
@@ -117,10 +117,10 @@ export function CinematicParagraph({
   return (
     <motion.p
       className={className}
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: active ? 1 : 0 }}
       transition={{
-        duration: 0.9,
+        duration: TEXT_FADE_DURATION,
         delay: active ? delay : 0,
         ease: luxuryEase,
       }}

@@ -8,8 +8,8 @@ import { LuxuryButton } from "./ui/LuxuryButton";
 import { CinematicLines, CinematicParagraph } from "./ui/CinematicText";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
-const IMAGE_FADE_IN = 9;
-const IMAGE_FADE_OUT = 10;
+const IMAGE_FADE_IN = 4.2;
+const IMAGE_FADE_OUT = 4.8;
 
 const SLIDES = [
   {
@@ -90,12 +90,12 @@ const PHASE_ORDER: HeroPhase[] = [
 ];
 
 const PHASE_DURATION: Record<HeroPhase, number> = {
-  "image-in": 1800,
+  "image-in": 600,
   headline: 3200,
   subheadline: 2800,
   buttons: 2000,
   hold: 5000,
-  transition: 10500,
+  transition: 5200,
 };
 
 interface HeroSectionProps {
@@ -118,9 +118,7 @@ export function HeroSection({
   const slide = SLIDES[slideIndex];
   const nextSlideIndex = (slideIndex + 1) % SLIDES.length;
   const transitioning = phase === "transition";
-  const productFocus =
-    !ready ||
-    (!reduceMotion && (transitioning || phase === "image-in"));
+  const productFocus = !ready || (!reduceMotion && transitioning);
 
   const copyActive = !productFocus;
 
@@ -172,14 +170,14 @@ export function HeroSection({
 
   useEffect(() => {
     if (!ready) {
-      setPhase("image-in");
+      setPhase("headline");
       setHasStarted(false);
       return;
     }
 
     if (!hasStarted) {
       setHasStarted(true);
-      setPhase("image-in");
+      setPhase("headline");
     }
   }, [ready, hasStarted]);
 
@@ -201,7 +199,7 @@ export function HeroSection({
 
       if (phase === "transition") {
         setSlideIndex((i) => (i + 1) % SLIDES.length);
-        setPhase("image-in");
+        setPhase("headline");
         return;
       }
 
@@ -365,9 +363,11 @@ function HeroCopyBlock({
   const isWideLayout = isDesktopStack && align === "wide";
   const fixedStack = isSideLayout || (!isDesktopStack && slideIndex === 0);
   const stagger = isWideLayout ? 0 : isDesktopStack ? 0.34 : 0.26;
+  const headlineShown = headlineVisible || (fadingOut && isDesktopStack);
+  const subShown = subVisible || (fadingOut && isDesktopStack);
   const headlineActive = headlineVisible && !fadingOut;
   const subActive = subVisible && !fadingOut;
-  const subMounted = fixedStack ? headlineVisible : subVisible;
+  const subMounted = fixedStack ? headlineShown : subShown;
 
   return (
     <div
@@ -392,7 +392,7 @@ function HeroCopyBlock({
                 : "mx-auto w-full max-w-[920px] text-center"
         }
       >
-        {headlineVisible && (
+        {headlineShown && (
           <CinematicLines
             lines={lines}
             active={headlineActive}
@@ -423,16 +423,16 @@ function HeroCopyBlock({
             <CinematicParagraph
               text={slide.subheadline}
               active={subActive}
-              delay={0.04}
+              delay={0}
               className={subClassName}
             />
           )
         ) : (
-          subVisible && (
+          subShown && (
             <CinematicParagraph
               text={slide.subheadline}
               active={subActive}
-              delay={isDesktopStack ? 0.06 : 0.04}
+              delay={0}
               className={subClassName}
             />
           )
@@ -571,23 +571,22 @@ function HeroImageLayer({
   reduceMotion: boolean;
   priority: boolean;
 }) {
-  const visible = active || entering || exiting;
-  if (!visible) return null;
-
-  const targetOpacity = exiting ? 0 : 1;
+  const targetOpacity = exiting ? 0 : active || entering ? 1 : 0;
   const fadeDuration = reduceMotion
-    ? 0.5
+    ? 0.4
     : exiting
       ? IMAGE_FADE_OUT
-      : IMAGE_FADE_IN;
+      : entering
+        ? IMAGE_FADE_IN
+        : 0.35;
 
   return (
     <motion.div
       className="absolute inset-0 [transform:translateZ(0)]"
-      initial={entering && !reduceMotion ? { opacity: 0 } : false}
+      initial={false}
       animate={{
         opacity: targetOpacity,
-        zIndex: entering || active ? 2 : 1,
+        zIndex: entering || active ? 2 : exiting ? 1 : 0,
       }}
       transition={{
         opacity: { duration: fadeDuration, ease: luxuryEase },
