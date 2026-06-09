@@ -3,8 +3,9 @@
 import { BRAND_FULL, BRAND_FULL_WORDS } from "@/lib/brand";
 import { motion, useReducedMotion } from "framer-motion";
 
-const luxuryEase = [0.22, 1, 0.36, 1] as const;
-export const TEXT_FADE_DURATION = 2.35;
+/** Slow, smooth opacity fade — starts immediately, no lead-in delay */
+export const TEXT_FADE_DURATION = 2.85;
+const textEase = [0.16, 1, 0.3, 1] as const;
 
 type RevealStyle = "fade" | "drift";
 
@@ -15,7 +16,6 @@ interface CinematicLinesProps {
   stagger?: number;
   active?: boolean;
   reveal?: RevealStyle;
-  /** Each line sits in a fixed row — earlier lines never move when later lines appear */
   anchored?: boolean;
 }
 
@@ -24,9 +24,8 @@ export function CinematicLines({
   lines,
   className = "",
   lineClassName = "",
-  stagger = 0.18,
+  stagger = 0.12,
   active = true,
-  reveal = "fade",
   anchored = false,
 }: CinematicLinesProps) {
   const reduceMotion = useReducedMotion();
@@ -45,6 +44,16 @@ export function CinematicLines({
     );
   }
 
+  const lineMotion = (lineIndex: number) => ({
+    initial: { opacity: 0 },
+    animate: { opacity: active ? 1 : 0 },
+    transition: {
+      duration: TEXT_FADE_DURATION,
+      delay: active ? lineIndex * stagger : 0,
+      ease: textEase,
+    },
+  });
+
   if (useAnchored) {
     return (
       <div
@@ -54,16 +63,7 @@ export function CinematicLines({
       >
         {lines.map((line, lineIndex) => (
           <div key={`${line}-${lineIndex}`} className="hero-headline-row-slot">
-            <motion.p
-              className="hero-headline-line"
-              initial={false}
-              animate={{ opacity: active ? 1 : 0 }}
-              transition={{
-                duration: TEXT_FADE_DURATION,
-                delay: active ? lineIndex * stagger : 0,
-                ease: luxuryEase,
-              }}
-            >
+            <motion.p className="hero-headline-line" {...lineMotion(lineIndex)}>
               {line}
             </motion.p>
           </div>
@@ -76,16 +76,7 @@ export function CinematicLines({
     <div className={className}>
       {lines.map((line, lineIndex) => (
         <div key={`${line}-${lineIndex}`} className="w-full">
-          <motion.p
-            className={headlineClassName}
-            initial={false}
-            animate={{ opacity: active ? 1 : 0 }}
-            transition={{
-              duration: TEXT_FADE_DURATION,
-              delay: active ? lineIndex * stagger : 0,
-              ease: luxuryEase,
-            }}
-          >
+          <motion.p className={headlineClassName} {...lineMotion(lineIndex)}>
             {line}
           </motion.p>
         </div>
@@ -117,12 +108,12 @@ export function CinematicParagraph({
   return (
     <motion.p
       className={className}
-      initial={false}
+      initial={{ opacity: 0 }}
       animate={{ opacity: active ? 1 : 0 }}
       transition={{
         duration: TEXT_FADE_DURATION,
         delay: active ? delay : 0,
-        ease: luxuryEase,
+        ease: textEase,
       }}
     >
       {text}
@@ -156,7 +147,7 @@ export function BrandNameReveal({ active = true }: BrandNameRevealProps) {
           transition={{
             duration: 1.2,
             delay: active ? 0.18 + i * 0.18 : 0,
-            ease: luxuryEase,
+            ease: textEase,
           }}
         >
           {word}

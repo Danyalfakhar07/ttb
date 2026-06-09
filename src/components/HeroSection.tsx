@@ -5,7 +5,11 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { LuxuryButton } from "./ui/LuxuryButton";
-import { CinematicLines, CinematicParagraph } from "./ui/CinematicText";
+import {
+  CinematicLines,
+  CinematicParagraph,
+  TEXT_FADE_DURATION,
+} from "./ui/CinematicText";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
 const IMAGE_FADE_IN = 4.2;
@@ -361,8 +365,8 @@ function HeroCopyBlock({
   const isDesktopStack = topPadding === "desktop";
   const isSideLayout = isDesktopStack && align === "side";
   const isWideLayout = isDesktopStack && align === "wide";
-  const fixedStack = isSideLayout || (!isDesktopStack && slideIndex === 0);
-  const stagger = isWideLayout ? 0 : isDesktopStack ? 0.34 : 0.26;
+  const fixedStack = isSideLayout || !isDesktopStack || isWideLayout;
+  const stagger = isWideLayout ? 0.1 : isDesktopStack ? 0.14 : 0.12;
   const headlineShown = headlineVisible || (fadingOut && isDesktopStack);
   const subShown = subVisible || (fadingOut && isDesktopStack);
   const headlineActive = headlineVisible && !fadingOut;
@@ -394,10 +398,10 @@ function HeroCopyBlock({
       >
         {headlineShown && (
           <CinematicLines
+            key={`headline-${slideIndex}-${topPadding}`}
             lines={lines}
             active={headlineActive}
             stagger={stagger}
-            reveal="fade"
             anchored={lines.length > 1}
             className="hero-headline-stack"
             lineClassName={headlineClassName}
@@ -418,24 +422,14 @@ function HeroCopyBlock({
                   : "mx-auto mt-4 w-full max-w-[560px] text-center"
         }
       >
-        {fixedStack ? (
-          subMounted && (
-            <CinematicParagraph
-              text={slide.subheadline}
-              active={subActive}
-              delay={0}
-              className={subClassName}
-            />
-          )
-        ) : (
-          subShown && (
-            <CinematicParagraph
-              text={slide.subheadline}
-              active={subActive}
-              delay={0}
-              className={subClassName}
-            />
-          )
+        {subMounted && (
+          <CinematicParagraph
+            key={`sub-${slideIndex}-${topPadding}`}
+            text={slide.subheadline}
+            active={subActive}
+            delay={0}
+            className={subClassName}
+          />
         )}
       </div>
 
@@ -474,23 +468,29 @@ function HeroCtaButtons({
   fixedSlot?: boolean;
 }) {
   const show = visible && !fadingOut;
+  const ctaTransition = { duration: TEXT_FADE_DURATION, ease: luxuryEase };
 
   return (
     <div
       className={`relative flex min-h-[5.5rem] w-full sm:min-h-[4.5rem] ${alignStart ? "items-center justify-start" : "items-center justify-center"}`}
     >
-      <div
+      <motion.div
         aria-hidden={!show}
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
-        style={{ opacity: show ? 1 : 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: show ? 1 : 0 }}
+        transition={ctaTransition}
       >
         <div className="h-20 w-[min(92%,340px)] rounded-full bg-white/[0.03] blur-2xl sm:h-14 sm:w-[min(80%,480px)]" />
-      </div>
+      </motion.div>
 
-      <div
-        key={fixedSlot ? `cta-fixed-${slideKey}` : `cta-${slideKey}`}
+      <motion.div
+        key={`cta-${slideKey}`}
         className={`relative z-[1] flex flex-col gap-3 sm:flex-row sm:gap-4 ${alignStart ? "items-start" : "items-center"}`}
-        style={{ opacity: show ? 1 : 0, pointerEvents: show ? "auto" : "none" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: show ? 1 : 0 }}
+        transition={ctaTransition}
+        style={{ pointerEvents: show ? "auto" : "none" }}
       >
         <div className="inline-flex w-auto max-w-full">
           <LuxuryButton cinematic onClick={onWatchFilm}>
@@ -503,7 +503,7 @@ function HeroCtaButtons({
             Register Interest
           </LuxuryButton>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -196,6 +196,10 @@ h6,
     min-height: 5.25rem;
   }
 
+  .hero-desktop-wide .hero-fixed-sub-slot {
+    min-height: 4.25rem;
+  }
+
   .hero-copy-top {
     justify-self: center;
     width: 100%;
