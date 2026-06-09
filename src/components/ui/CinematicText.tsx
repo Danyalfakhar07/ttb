@@ -4,7 +4,6 @@ import { BRAND_FULL, BRAND_FULL_WORDS } from "@/lib/brand";
 import { motion, useReducedMotion } from "framer-motion";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
-const ANCHORED_LINE_HEIGHT = 1.12;
 
 type RevealStyle = "fade" | "drift";
 
@@ -49,24 +48,25 @@ export function CinematicLines({
   if (useAnchored) {
     return (
       <div
-        className={[className, "hero-headline-stack--anchored"].filter(Boolean).join(" ")}
-        style={{ height: `${lines.length * ANCHORED_LINE_HEIGHT}em` }}
+        className={[className, "hero-headline-stack--grid", lineClassName]
+          .filter(Boolean)
+          .join(" ")}
       >
         {lines.map((line, lineIndex) => (
-          <motion.p
-            key={`${line}-${lineIndex}`}
-            className={[headlineClassName, "hero-headline-line--anchored"].filter(Boolean).join(" ")}
-            style={{ top: `${lineIndex * ANCHORED_LINE_HEIGHT}em` }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: active ? 1 : 0 }}
-            transition={{
-              duration: 1.6,
-              delay: active ? 0.15 + lineIndex * stagger : 0,
-              ease: luxuryEase,
-            }}
-          >
-            {line}
-          </motion.p>
+          <div key={`${line}-${lineIndex}`} className="hero-headline-row-slot">
+            <motion.p
+              className="hero-headline-line"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: active ? 1 : 0 }}
+              transition={{
+                duration: 1.6,
+                delay: active ? 0.15 + lineIndex * stagger : 0,
+                ease: luxuryEase,
+              }}
+            >
+              {line}
+            </motion.p>
+          </div>
         ))}
       </div>
     );

@@ -260,7 +260,7 @@ export function HeroSection({
 
       {/* Desktop — slide 1: side column | slides 2–3: top headline + bottom CTAs */}
       {desktopCopyMounted && slide.desktopLayout === "side" && (
-        <div className="pointer-events-none absolute inset-0 z-10 hidden md:grid md:grid-cols-12 md:items-start md:px-12 md:pt-[max(5.5rem,11vh)] lg:px-16 xl:px-20">
+        <div className="pointer-events-none absolute inset-0 z-10 hidden md:grid md:grid-cols-12 md:items-center md:px-12 lg:px-16 xl:px-20">
           <div className="pointer-events-auto col-span-5 col-start-1 xl:col-span-4">
             <HeroCopyBlock
               slide={slide}
@@ -284,7 +284,7 @@ export function HeroSection({
 
       {desktopCopyMounted && slide.desktopLayout === "wide" && (
         <div className="pointer-events-none absolute inset-0 z-10 hidden min-h-[100dvh] md:grid md:grid-rows-[auto_1fr_auto]">
-          <div className="hero-desktop-wide-top pointer-events-auto flex w-full flex-col items-center px-8 pt-[max(5.25rem,10vh)] text-center lg:px-12">
+          <div className="hero-desktop-wide-top pointer-events-auto flex w-full flex-col items-center px-8 pt-[max(6.25rem,12.5vh)] text-center lg:px-12">
             <HeroCopyBlock
               slide={slide}
               slideIndex={slideIndex}
@@ -388,11 +388,6 @@ function HeroCopyBlock({
               : isDesktopStack
                 ? "hero-desktop-headline-slot flex w-full flex-col items-center"
                 : "mx-auto w-full max-w-[920px] text-center"
-        }
-        style={
-          lines.length > 1 && fixedStack
-            ? { minHeight: `${lines.length * 1.12}em` }
-            : undefined
         }
       >
         {headlineVisible && (
