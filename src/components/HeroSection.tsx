@@ -68,12 +68,23 @@ const SLIDES = [
   },
 ] as const;
 
-const DESKTOP_COPY_PHASES: HeroPhase[] = [
+const DESKTOP_TEXT_PHASES: HeroPhase[] = [
   "headline",
   "subheadline",
   "buttons",
   "hold",
   "copy-out",
+];
+
+const DESKTOP_BUTTONS_PHASES: HeroPhase[] = [
+  "buttons",
+  "hold",
+  "copy-out",
+  "buttons-out",
+];
+
+const DESKTOP_SIDE_PHASES: HeroPhase[] = [
+  ...DESKTOP_TEXT_PHASES,
   "buttons-out",
 ];
 
@@ -164,18 +175,22 @@ export function HeroSection({
     (reduceMotion ||
       ["buttons", "hold", "copy-out", "buttons-out"].includes(phase));
 
-  const desktopCopyMounted =
+  const desktopSideMounted =
     copyReady &&
     isDesktop &&
     (reduceMotion
       ? headlineVisible || subVisible || buttonsVisible
-      : DESKTOP_COPY_PHASES.includes(phase));
+      : DESKTOP_SIDE_PHASES.includes(phase));
+
+  const desktopWideTopMounted =
+    copyReady && isDesktop && DESKTOP_TEXT_PHASES.includes(phase);
+
+  const desktopWideBottomMounted =
+    copyReady && isDesktop && DESKTOP_BUTTONS_PHASES.includes(phase);
 
   const desktopHeadlineShown =
     copyReady &&
-    (reduceMotion
-      ? headlineVisible
-      : DESKTOP_COPY_PHASES.includes(phase) || textExiting);
+    (reduceMotion ? headlineVisible : DESKTOP_TEXT_PHASES.includes(phase));
 
   const desktopSubShown =
     copyReady &&
@@ -290,7 +305,7 @@ export function HeroSection({
       </div>
 
       {/* Desktop — slide 1: side column | slides 2–3: top headline + bottom CTAs */}
-      {desktopCopyMounted && slide.desktopLayout === "side" && (
+      {desktopSideMounted && slide.desktopLayout === "side" && (
         <div className="pointer-events-none absolute inset-0 z-10 hidden md:grid md:grid-cols-12 md:items-center md:px-12 lg:px-16 xl:px-20">
           <div className="pointer-events-auto col-span-5 col-start-1 xl:col-span-4">
             <HeroCopyBlock
@@ -313,7 +328,7 @@ export function HeroSection({
         </div>
       )}
 
-      {desktopCopyMounted && slide.desktopLayout === "wide" && (
+      {desktopWideTopMounted && slide.desktopLayout === "wide" && (
         <div className="pointer-events-none absolute inset-0 z-10 hidden min-h-[100dvh] md:grid md:grid-rows-[auto_1fr_auto]">
           <div className="hero-desktop-wide-top pointer-events-auto flex w-full flex-col items-center px-8 pt-[max(6.25rem,12.5vh)] text-center lg:px-12">
             <HeroCopyBlock
@@ -330,15 +345,17 @@ export function HeroSection({
             />
           </div>
           <div aria-hidden />
-          <div className="hero-desktop-wide-bottom pointer-events-auto flex items-center justify-center px-8 pb-10 lg:px-12">
-            <HeroCtaButtons
-              visible={desktopButtonsShown}
-              fadingOut={buttonsExiting}
-              slideKey={slideIndex}
-              onWatchFilm={onWatchFilm}
-              onRegister={onRegister}
-            />
-          </div>
+          {desktopWideBottomMounted && (
+            <div className="hero-desktop-wide-bottom pointer-events-auto flex items-center justify-center px-8 pb-10 lg:px-12">
+              <HeroCtaButtons
+                visible={desktopButtonsShown}
+                fadingOut={buttonsExiting}
+                slideKey={slideIndex}
+                onWatchFilm={onWatchFilm}
+                onRegister={onRegister}
+              />
+            </div>
+          )}
         </div>
       )}
 
