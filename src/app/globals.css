@@ -300,6 +300,36 @@ h6,
     text-align: left;
     color: rgba(255, 255, 255, 0.82);
   }
+
+  .hero-desktop-wide .hero-headline-stack {
+    align-items: center;
+    gap: 0;
+  }
+
+  .hero-headline-desktop-wide {
+    font-size: clamp(1.55rem, 2.1vw, 2.15rem);
+    letter-spacing: -0.024em;
+    text-align: center;
+    white-space: nowrap;
+    max-width: none;
+  }
+
+  .hero-subhead-desktop-wide {
+    font-size: clamp(0.82rem, 0.95vw, 0.94rem);
+    line-height: 1.52;
+    max-width: 48ch;
+    margin-inline: auto;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .hero-desktop-wide-top {
+    align-self: start;
+  }
+
+  .hero-desktop-wide-bottom {
+    align-self: end;
+  }
 }
 
 .hero-copy-stage {
