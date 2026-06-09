@@ -8,8 +8,8 @@ import { LuxuryButton } from "./ui/LuxuryButton";
 import { CinematicLines, CinematicParagraph } from "./ui/CinematicText";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
-const IMAGE_FADE_IN = 5.8;
-const IMAGE_FADE_OUT = 6.4;
+const IMAGE_FADE_IN = 9;
+const IMAGE_FADE_OUT = 10;
 
 const SLIDES = [
   {
@@ -90,12 +90,12 @@ const PHASE_ORDER: HeroPhase[] = [
 ];
 
 const PHASE_DURATION: Record<HeroPhase, number> = {
-  "image-in": 3400,
+  "image-in": 1800,
   headline: 3200,
   subheadline: 2800,
   buttons: 2000,
   hold: 5000,
-  transition: 6800,
+  transition: 10500,
 };
 
 interface HeroSectionProps {
@@ -423,7 +423,7 @@ function HeroCopyBlock({
             <CinematicParagraph
               text={slide.subheadline}
               active={subActive}
-              delay={0.1}
+              delay={0.04}
               className={subClassName}
             />
           )
@@ -432,7 +432,7 @@ function HeroCopyBlock({
             <CinematicParagraph
               text={slide.subheadline}
               active={subActive}
-              delay={isDesktopStack ? 0.2 : 0.15}
+              delay={isDesktopStack ? 0.06 : 0.04}
               className={subClassName}
             />
           )

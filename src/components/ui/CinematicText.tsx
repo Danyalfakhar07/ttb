@@ -59,8 +59,8 @@ export function CinematicLines({
               initial={{ opacity: 0 }}
               animate={{ opacity: active ? 1 : 0 }}
               transition={{
-                duration: 1.6,
-                delay: active ? 0.15 + lineIndex * stagger : 0,
+                duration: 0.95,
+                delay: active ? 0.06 + lineIndex * stagger : 0,
                 ease: luxuryEase,
               }}
             >
@@ -81,8 +81,8 @@ export function CinematicLines({
             initial={{ opacity: 0 }}
             animate={{ opacity: active ? 1 : 0 }}
             transition={{
-              duration: 1.6,
-              delay: active ? 0.15 + lineIndex * stagger : 0,
+              duration: 0.95,
+              delay: active ? 0.06 + lineIndex * stagger : 0,
               ease: luxuryEase,
             }}
           >
@@ -120,7 +120,7 @@ export function CinematicParagraph({
       initial={{ opacity: 0 }}
       animate={{ opacity: active ? 1 : 0 }}
       transition={{
-        duration: 1.5,
+        duration: 0.9,
         delay: active ? delay : 0,
         ease: luxuryEase,
       }}
