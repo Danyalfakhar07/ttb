@@ -57,8 +57,8 @@ export function CinematicLines({
                 : { opacity: 0, ...(fadeOnly ? {} : { y: -4 }) }
             }
             transition={{
-              duration: fadeOnly ? 2.1 : 1.85,
-              delay: active ? 0.15 + lineIndex * stagger : 0,
+              duration: fadeOnly ? 2.45 : 2.05,
+              delay: active ? 0.2 + lineIndex * stagger : 0,
               ease: luxuryEase,
             }}
           >
@@ -102,8 +102,8 @@ export function CinematicParagraph({
           : { opacity: 0, ...(fadeOnly ? {} : { y: -3 }) }
       }
       transition={{
-        duration: fadeOnly ? 1.9 : 1.65,
-        delay: active ? delay + 0.1 : 0,
+        duration: fadeOnly ? 2.15 : 1.85,
+        delay: active ? delay + 0.12 : 0,
         ease: luxuryEase,
       }}
     >

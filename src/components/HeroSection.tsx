@@ -25,6 +25,7 @@ const SLIDES = [
     desktop: "/hero/hero-1-desktop.jpeg",
     mobile: "/hero/hero-1-mobile.jpeg",
     desktopFocus: "center center",
+    desktopSide: "left",
   },
   {
     id: 1,
@@ -41,6 +42,7 @@ const SLIDES = [
     desktop: "/hero/hero-2-desktop.jpeg",
     mobile: "/hero/hero-2-mobile.jpeg",
     desktopFocus: "center center",
+    desktopSide: "right",
   },
   {
     id: 2,
@@ -57,6 +59,7 @@ const SLIDES = [
     desktop: "/hero/hero-3-desktop.jpeg",
     mobile: "/hero/hero-3-mobile.jpeg",
     desktopFocus: "center center",
+    desktopSide: "left",
   },
 ] as const;
 
@@ -78,12 +81,12 @@ const PHASE_ORDER: HeroPhase[] = [
 ];
 
 const PHASE_DURATION: Record<HeroPhase, number> = {
-  "image-in": 3000,
-  headline: 2800,
-  subheadline: 2200,
-  buttons: 1600,
-  hold: 5200,
-  transition: 3400,
+  "image-in": 3400,
+  headline: 3200,
+  subheadline: 2800,
+  buttons: 2000,
+  hold: 5000,
+  transition: 3800,
 };
 
 interface HeroSectionProps {
@@ -114,7 +117,7 @@ export function HeroSection({
 
   const atmosphereTransition = reduceMotion
     ? { duration: 0.25 }
-    : { duration: 2.8, ease: luxuryEase };
+    : { duration: 3.2, ease: luxuryEase };
 
   const headlineVisible =
     ready &&
@@ -208,8 +211,8 @@ export function HeroSection({
           subVisible={subVisible}
           lines={[...slide.headlineLines]}
           reveal="drift"
-          headlineClassName="hero-headline hero-headline-primary text-white"
-          subClassName="hero-subhead text-balance"
+          headlineClassName={`hero-headline hero-headline-primary text-white${slideIndex === 0 ? " hero-headline-compact" : ""}`}
+          subClassName={`hero-subhead text-balance${slideIndex === 0 ? " hero-subhead-compact" : ""}`}
           topPadding="max-md"
         />
         <div aria-hidden className="min-h-[28vh] sm:min-h-[32vh]" />
@@ -223,23 +226,32 @@ export function HeroSection({
         </div>
       </div>
 
-      {/* Desktop — centered copy stack: headline → sub → buttons */}
+      {/* Desktop — side column: headline → sub → buttons */}
       {(headlineVisible || subVisible || buttonsVisible) && (
-        <div className="pointer-events-none absolute inset-0 z-10 hidden items-center justify-center px-10 md:flex">
-          <HeroCopyBlock
-            slide={slide}
-            slideIndex={slideIndex}
-            headlineVisible={headlineVisible}
-            subVisible={subVisible}
-            buttonsVisible={buttonsVisible}
-            lines={[...slide.desktopHeadlineLines]}
-            reveal="fade"
-            headlineClassName="hero-headline hero-headline-primary hero-headline-desktop text-white"
-            subClassName="hero-subhead hero-subhead-desktop text-balance"
-            onWatchFilm={onWatchFilm}
-            onRegister={onRegister}
-            topPadding="desktop"
-          />
+        <div className="pointer-events-none absolute inset-0 z-10 hidden md:grid md:grid-cols-12 md:items-center md:px-12 lg:px-16 xl:px-20">
+          <div
+            className={
+              slide.desktopSide === "left"
+                ? "pointer-events-auto col-span-5 col-start-1 xl:col-span-4"
+                : "pointer-events-auto col-span-5 col-start-8 xl:col-span-4 xl:col-start-9"
+            }
+          >
+            <HeroCopyBlock
+              slide={slide}
+              slideIndex={slideIndex}
+              headlineVisible={headlineVisible}
+              subVisible={subVisible}
+              buttonsVisible={buttonsVisible}
+              lines={[...slide.desktopHeadlineLines]}
+              reveal="fade"
+              headlineClassName="hero-headline hero-headline-primary hero-headline-desktop text-white"
+              subClassName="hero-subhead hero-subhead-desktop text-balance"
+              onWatchFilm={onWatchFilm}
+              onRegister={onRegister}
+              topPadding="desktop"
+              align="side"
+            />
+          </div>
         </div>
       )}
 
@@ -268,6 +280,7 @@ function HeroCopyBlock({
   headlineClassName,
   subClassName,
   topPadding,
+  align,
   buttonsVisible,
   onWatchFilm,
   onRegister,
@@ -281,26 +294,32 @@ function HeroCopyBlock({
   headlineClassName: string;
   subClassName: string;
   topPadding: "max-md" | "desktop";
+  align?: "side";
   buttonsVisible?: boolean;
   onWatchFilm?: () => void;
   onRegister?: () => void;
 }) {
   const isDesktopStack = topPadding === "desktop";
-  const stagger = isDesktopStack ? 0.28 : 0.22;
+  const isSideLayout = isDesktopStack && align === "side";
+  const stagger = isDesktopStack ? 0.34 : 0.26;
 
   return (
     <div
       className={
-        isDesktopStack
-          ? "hero-desktop-stack pointer-events-auto w-full max-w-[1120px]"
-          : "hero-copy-top pointer-events-auto flex w-full flex-col items-center text-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] sm:px-6"
+        isSideLayout
+          ? "hero-desktop-stack hero-desktop-side pointer-events-auto w-full"
+          : isDesktopStack
+            ? "hero-desktop-stack pointer-events-auto w-full max-w-[1120px]"
+            : "hero-copy-top pointer-events-auto flex w-full flex-col items-center text-center px-4 pt-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] sm:px-6"
       }
     >
       <div
         className={
-          isDesktopStack
-            ? "hero-desktop-headline-slot flex w-full flex-col items-center"
-            : "mx-auto w-full max-w-[920px] text-center"
+          isSideLayout
+            ? "hero-desktop-headline-slot flex w-full flex-col items-start"
+            : isDesktopStack
+              ? "hero-desktop-headline-slot flex w-full flex-col items-center"
+              : "mx-auto w-full max-w-[920px] text-center"
         }
       >
         <AnimatePresence mode="sync">
@@ -311,7 +330,7 @@ function HeroCopyBlock({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: isDesktopStack ? 1.4 : 1.2, ease: luxuryEase }}
+              transition={{ duration: isDesktopStack ? 1.65 : 1.45, ease: luxuryEase }}
             >
               <CinematicLines
                 lines={lines}
@@ -328,9 +347,11 @@ function HeroCopyBlock({
 
       <div
         className={
-          isDesktopStack
-            ? "hero-desktop-sub-slot mt-4 w-full max-w-[580px] text-center"
-            : "mx-auto mt-3 w-full max-w-[560px] text-center"
+          isSideLayout
+            ? "hero-desktop-sub-slot mt-5 w-full max-w-[34ch] text-left"
+            : isDesktopStack
+              ? "hero-desktop-sub-slot mt-4 w-full max-w-[580px] text-center"
+              : "mx-auto mt-4 w-full max-w-[560px] text-center"
         }
       >
         <AnimatePresence mode="sync">
@@ -341,12 +362,12 @@ function HeroCopyBlock({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: isDesktopStack ? 1.5 : 1.1, ease: luxuryEase }}
+              transition={{ duration: isDesktopStack ? 1.7 : 1.35, ease: luxuryEase }}
             >
               <CinematicParagraph
                 text={slide.subheadline}
                 active={subVisible}
-                delay={isDesktopStack ? 0.2 : 0.15}
+                delay={isDesktopStack ? 0.28 : 0.2}
                 reveal={reveal}
                 className={subClassName}
               />
@@ -357,13 +378,14 @@ function HeroCopyBlock({
 
       {isDesktopStack && onWatchFilm && onRegister && (
         <div
-          className={`mt-6 w-full ${buttonsVisible ? "hero-desktop-cta-slot" : ""}`}
+          className={`${isSideLayout ? "mt-7" : "mt-6"} w-full ${buttonsVisible ? "hero-desktop-cta-slot" : ""} ${isSideLayout ? "flex justify-start" : ""}`}
         >
           <HeroCtaButtons
             visible={!!buttonsVisible}
             slideKey={slideIndex}
             onWatchFilm={onWatchFilm}
             onRegister={onRegister}
+            alignStart={isSideLayout}
           />
         </div>
       )}
@@ -376,20 +398,24 @@ function HeroCtaButtons({
   slideKey,
   onWatchFilm,
   onRegister,
+  alignStart = false,
 }: {
   visible: boolean;
   slideKey: number;
   onWatchFilm: () => void;
   onRegister: () => void;
+  alignStart?: boolean;
 }) {
   return (
-    <div className="relative flex min-h-[5.5rem] w-full items-center justify-center sm:min-h-[4.5rem]">
+    <div
+      className={`relative flex min-h-[5.5rem] w-full sm:min-h-[4.5rem] ${alignStart ? "items-center justify-start" : "items-center justify-center"}`}
+    >
       <motion.div
         aria-hidden={!visible}
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
         initial={false}
         animate={{ opacity: visible ? 1 : 0 }}
-        transition={{ duration: 1.4, ease: luxuryEase }}
+        transition={{ duration: 1.55, ease: luxuryEase }}
       >
         <div className="h-20 w-[min(92%,340px)] rounded-full bg-white/[0.03] blur-2xl sm:h-14 sm:w-[min(80%,480px)]" />
       </motion.div>
@@ -398,7 +424,7 @@ function HeroCtaButtons({
         {visible && (
           <motion.div
             key={`cta-${slideKey}`}
-            className="relative z-[1] flex flex-col items-center gap-3 sm:flex-row sm:gap-4"
+            className={`relative z-[1] flex flex-col gap-3 sm:flex-row sm:gap-4 ${alignStart ? "items-start" : "items-center"}`}
             initial="hidden"
             animate="visible"
             exit="exit"
@@ -521,7 +547,7 @@ function HeroImageLayer({
   priority: boolean;
   showcase: boolean;
 }) {
-  const duration = reduceMotion ? 0.6 : 3.4;
+  const duration = reduceMotion ? 0.6 : 3.8;
   const crossfadeEase = luxuryEase;
 
   return (

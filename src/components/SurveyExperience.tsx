@@ -1,7 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { LEGAL_ENTITY } from "@/lib/legal";
 import { ScrollReveal } from "./ScrollReveal";
 import { LuxuryButton } from "./ui/LuxuryButton";
 import type {
@@ -44,7 +46,7 @@ const stepVariants = {
   exit: { opacity: 0, y: -10 },
 };
 
-const SINGLE_ADVANCE_MS = 760;
+const SINGLE_ADVANCE_MS = 920;
 
 interface SurveyExperienceProps {
   onReturnOverview: () => void;
@@ -367,6 +369,18 @@ export function SurveyExperience({ onReturnOverview }: SurveyExperienceProps) {
                       or future developments.
                     </span>
                   </label>
+                  <p className="border-t border-white/[0.06] pt-4 text-[clamp(0.78rem,2.8vw,0.875rem)] leading-relaxed text-white/42">
+                    By submitting your information, you consent to {LEGAL_ENTITY}{" "}
+                    collecting and processing your personal data in accordance
+                    with our{" "}
+                    <Link
+                      href="/privacy"
+                      className="text-white/58 underline decoration-white/20 underline-offset-2 transition-colors hover:text-white/80"
+                    >
+                      Privacy Notice
+                    </Link>
+                    .
+                  </p>
                 </div>
               </StepShell>
             )}
@@ -449,7 +463,7 @@ function StepShell({
       initial="enter"
       animate="center"
       exit="exit"
-      transition={{ duration: 1.05, ease: luxuryEase }}
+      transition={{ duration: 1.2, ease: luxuryEase }}
     >
       {children}
     </motion.div>

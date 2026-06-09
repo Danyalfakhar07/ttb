@@ -189,15 +189,15 @@ h6,
   }
 
   .hero-headline-stack {
-    gap: 0.11em;
+    gap: 0.14em;
   }
 
   .hero-headline-line {
-    line-height: 1.1;
+    line-height: 1.12;
   }
 
   .hero-headline-primary {
-    font-size: clamp(1.85rem, 8.2vw, 2.65rem);
+    font-size: clamp(1.72rem, 7.6vw, 2.45rem);
     font-weight: 300;
     letter-spacing: -0.028em;
     max-width: 94vw;
@@ -208,14 +208,26 @@ h6,
       0 0 40px rgba(0, 0, 0, 0.25);
   }
 
-  .hero-subhead {
-    font-size: clamp(0.98rem, 3.8vw, 1.15rem);
-    line-height: 1.52;
-    font-weight: 300;
+  .hero-headline-compact {
+    font-size: clamp(1.48rem, 6.6vw, 2.05rem);
+    letter-spacing: -0.024em;
     max-width: 92vw;
+  }
+
+  .hero-subhead {
+    font-size: clamp(0.92rem, 3.5vw, 1.08rem);
+    line-height: 1.54;
+    font-weight: 300;
+    max-width: 90vw;
     margin-inline: auto;
     text-align: center;
     color: rgba(255, 255, 255, 0.84);
+  }
+
+  .hero-subhead-compact {
+    font-size: clamp(0.86rem, 3.2vw, 0.98rem);
+    line-height: 1.5;
+    max-width: 88vw;
   }
 }
 
@@ -228,52 +240,65 @@ h6,
     text-align: center;
   }
 
+  .hero-desktop-side {
+    align-items: flex-start;
+    max-width: none;
+    text-align: left;
+  }
+
+  .hero-desktop-side .hero-headline-stack {
+    align-items: flex-start;
+    gap: 0.16em;
+  }
+
   .hero-desktop-headline-slot {
-    min-height: clamp(6.5rem, 9.5vw, 9rem);
+    min-height: auto;
     justify-content: flex-end;
   }
 
   .hero-desktop-sub-slot {
-    min-height: 3.25rem;
-    margin-inline: auto;
+    min-height: auto;
+    margin-inline: 0;
   }
 
   .hero-desktop-cta-slot {
-    min-height: 3.75rem;
+    min-height: auto;
   }
 
   .hero-headline-line-slot {
-    min-height: clamp(3.4rem, 5.2vw, 5rem);
+    min-height: auto;
     display: flex;
     align-items: flex-end;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .hero-headline-stack {
-    gap: 0.1em;
+    gap: 0.14em;
   }
 
   .hero-headline-line {
-    line-height: 1.04;
-    white-space: nowrap;
+    line-height: 1.1;
+    white-space: normal;
+    text-align: left;
   }
 
   .hero-headline-desktop {
-    font-size: clamp(2.75rem, 4.2vw, 4.25rem);
+    font-size: clamp(1.75rem, 2.35vw, 2.45rem);
     font-weight: 300;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.028em;
     text-shadow:
-      0 4px 36px rgba(0, 0, 0, 0.6),
-      0 0 48px rgba(0, 0, 0, 0.2);
+      0 3px 28px rgba(0, 0, 0, 0.55),
+      0 0 36px rgba(0, 0, 0, 0.18);
   }
 
   .hero-subhead-desktop {
-    font-size: clamp(1.15rem, 1.55vw, 1.4rem);
-    line-height: 1.55;
+    font-size: clamp(0.88rem, 1.05vw, 1rem);
+    line-height: 1.56;
     font-weight: 300;
-    max-width: 46ch;
-    margin-inline: auto;
-    color: rgba(255, 255, 255, 0.88);
+    max-width: 34ch;
+    margin-inline: 0;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.82);
   }
 }
 
