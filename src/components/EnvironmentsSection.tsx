@@ -7,26 +7,26 @@ const ENVIRONMENTS = [
   {
     title: "Carnivorous Plant Environments",
     body: "Specially designed ecosystems supporting species that thrive in nutrient-poor conditions with carefully controlled humidity and moisture levels.",
-    image: "/hero/hero-1-desktop.jpeg",
+    image: "/environments/carnivorous.jpeg",
     focus: "center center",
   },
   {
     title: "Indoor Bonsai Environments",
     body: "Micro-environments developed to support the growth and maintenance of indoor bonsai trees, balancing airflow, humidity, and aesthetic presentation.",
-    image: "/hero/hero-2-desktop.jpeg",
-    focus: "center 46%",
+    image: "/environments/bonsai.jpeg",
+    focus: "center center",
   },
   {
     title: "Temperate Redwood Bonsai Environments",
     body: "Experimental ecosystems focused on temperate species, including redwood bonsai, designed to replicate natural woodland conditions within a controlled enclosure.",
-    image: "/hero/hero-3-desktop.jpeg",
-    focus: "center 48%",
+    image: "/environments/temperate-redwood.jpeg",
+    focus: "center center",
   },
   {
     title: "Succulent and Cactus Desert Environments",
     body: "Arid ecosystem designs engineered to support drought-tolerant species through carefully managed drainage, lighting, and low-humidity conditions.",
-    image: "/hero/hero-2-desktop.jpeg",
-    focus: "center 42%",
+    image: "/environments/succulent-cactus.jpeg",
+    focus: "center center",
   },
 ] as const;
 
