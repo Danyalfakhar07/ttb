@@ -203,12 +203,12 @@ export function SurveyExperience({ onReturnOverview }: SurveyExperienceProps) {
     step === "thanks" ? 100 : (typeof step === "number" ? step : 5) * 20;
 
   return (
-    <section id="inquiry" className="survey-section relative px-4 py-20 sm:px-6 md:px-10 md:py-32">
+    <section id="enquiry" className="survey-section relative px-4 py-20 sm:px-6 md:px-10 md:py-32">
       <div className="glow-orb top-20 right-0 h-80 w-80 opacity-40" />
 
       <ScrollReveal className="mx-auto mb-12 max-w-[1100px] md:mb-16">
         <p className="survey-eyebrow type-eyebrow text-[11px] text-white/45 md:text-[10px]">
-          Guided Inquiry
+          Guided Enquiry
         </p>
         <h2 className="survey-section-title mt-4 text-[clamp(2rem,6.5vw,3rem)] tracking-[-0.02em] text-white">
           Shape the future of living environments

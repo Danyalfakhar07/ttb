@@ -30,10 +30,10 @@ export function SiteFooter() {
             Intellectual Property
           </Link>
           <Link
-            href="/#inquiry"
+            href="/#enquiry"
             className="text-[9px] uppercase tracking-[0.28em] text-white/35 transition-colors hover:text-white/70"
           >
-            Inquiry
+            Enquiry
           </Link>
         </nav>
       </div>

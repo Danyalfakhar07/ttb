@@ -47,7 +47,7 @@ export function LaunchExperience() {
         <SmoothScroll enabled>
           <SiteHeader
             visible={headerVisible}
-            onRegister={() => scrollTo("inquiry")}
+            onRegister={() => scrollTo("enquiry")}
           />
 
           <main>
@@ -55,9 +55,9 @@ export function LaunchExperience() {
               imageReady={loaded}
               copyReady={copyReady}
               onWatchFilm={() => scrollTo("film")}
-              onRegister={() => scrollTo("inquiry")}
+              onRegister={() => scrollTo("enquiry")}
             />
-            <VideoSection onContinue={() => scrollTo("inquiry")} />
+            <VideoSection onContinue={() => scrollTo("enquiry")} />
             <SurveyExperience onReturnOverview={() => scrollTo("overview")} />
           </main>
 
