@@ -12,9 +12,9 @@ import {
 } from "./ui/CinematicText";
 
 const luxuryEase = [0.22, 1, 0.36, 1] as const;
-const IMAGE_FADE_IN = 4.2;
-const IMAGE_FADE_OUT = 4.8;
-const INITIAL_REVEAL_DURATION = 2.8;
+const IMAGE_FADE_IN = 4.4;
+const IMAGE_FADE_OUT = 5.0;
+const INITIAL_REVEAL_DURATION = 3.0;
 
 const SLIDES = [
   {
@@ -102,14 +102,14 @@ const PHASE_ORDER: HeroPhase[] = [
 ];
 
 const PHASE_DURATION: Record<HeroPhase, number> = {
-  "image-in": 800,
-  headline: 3200,
-  subheadline: 2800,
-  buttons: 2000,
-  hold: 5000,
-  "copy-out": 3000,
+  "image-in": 1000,
+  headline: 3400,
+  subheadline: 3000,
+  buttons: 2200,
+  hold: 5200,
+  "copy-out": 3200,
   "buttons-out": 0,
-  transition: 5200,
+  transition: 5400,
 };
 
 interface HeroSectionProps {
@@ -150,7 +150,7 @@ export function HeroSection({
 
   const atmosphereTransition = reduceMotion
     ? { duration: 0.25 }
-    : { duration: 3.2, ease: luxuryEase };
+    : { duration: 3.4, ease: luxuryEase };
 
   const headlineVisible =
     copyReady &&
@@ -236,7 +236,7 @@ export function HeroSection({
 
     if (phase === "image-in" && isInitialReveal && slideIndex === 0) {
       duration =
-        copyReady && revealAnimDone ? 80 : 120;
+        copyReady && revealAnimDone ? 100 : 140;
     }
 
     const t = setTimeout(() => {
@@ -397,12 +397,12 @@ export function HeroSection({
       <motion.div
         className="pointer-events-none absolute bottom-6 left-1/2 z-10 -translate-x-1/2 md:hidden"
         animate={{ opacity: buttonsVisible ? 0.35 : 0.1 }}
-        transition={{ duration: 1.6, ease: luxuryEase }}
+        transition={{ duration: 1.8, ease: luxuryEase }}
       >
         <motion.div
           className="h-10 w-px bg-gradient-to-b from-white/0 via-white/40 to-white/0"
           animate={{ scaleY: [0.5, 1, 0.5] }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
         />
       </motion.div>
     </section>
@@ -444,7 +444,7 @@ function HeroCopyBlock({
   const isSideLayout = isDesktopStack && align === "side";
   const isWideLayout = isDesktopStack && align === "wide";
   const fixedStack = isSideLayout || !isDesktopStack || isWideLayout;
-  const stagger = isWideLayout ? 0.1 : isDesktopStack ? 0.14 : 0.12;
+  const stagger = isWideLayout ? 0.12 : isDesktopStack ? 0.16 : 0.14;
   const headlineShown = headlineVisible;
   const subShown = subVisible;
   const headlineActive = headlineVisible && !textExiting && !buttonsExiting;

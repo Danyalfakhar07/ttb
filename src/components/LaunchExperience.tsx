@@ -25,8 +25,8 @@ export function LaunchExperience() {
   const handleLoadComplete = useCallback(() => {
     sessionStorage.setItem(INTRO_SESSION_KEY, "1");
     setLoaded(true);
-    setTimeout(() => setHeaderVisible(true), 1100);
-    setTimeout(() => setCopyReady(true), 2400);
+    setTimeout(() => setHeaderVisible(true), 1300);
+    setTimeout(() => setCopyReady(true), 2600);
   }, []);
 
   const scrollTo = (id: string) => {

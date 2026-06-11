@@ -20,10 +20,10 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
   const hasSignalledRef = useRef(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("name"), 2000);
-    const t2 = setTimeout(() => setPhase("hold"), 4600);
-    const t3 = setTimeout(() => setPhase("exit"), 6400);
-    const t4 = setTimeout(() => setVisible(false), 7200);
+    const t1 = setTimeout(() => setPhase("name"), 2200);
+    const t2 = setTimeout(() => setPhase("hold"), 4800);
+    const t3 = setTimeout(() => setPhase("exit"), 6600);
+    const t4 = setTimeout(() => setVisible(false), 7400);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -48,7 +48,7 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
         <motion.div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black"
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: luxuryEase }}
+          transition={{ duration: 1.7, ease: luxuryEase }}
         >
           <motion.div
             className="glow-orb h-[min(70vw,480px)] w-[min(70vw,480px)]"
@@ -56,7 +56,7 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
               opacity: phase === "hold" ? 0.85 : 0.5,
               scale: phase === "name" ? 1.06 : 1,
             }}
-            transition={{ duration: 2.6, ease: luxuryEase }}
+            transition={{ duration: 2.8, ease: luxuryEase }}
           />
 
           <motion.div
@@ -73,7 +73,7 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
                   ? { opacity: 1, y: 0 }
                   : { opacity: showName ? 0.4 : 1, y: showName ? -4 : 0 }
               }
-              transition={{ duration: 1.8, ease: luxuryEase }}
+              transition={{ duration: 2.0, ease: luxuryEase }}
             >
               <BrandLogo size="lg" />
             </motion.div>
@@ -85,7 +85,7 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
                 width: showName ? "min(280px, 72vw)" : "min(120px, 40vw)",
                 opacity: showName ? 1 : 0.45,
               }}
-              transition={{ duration: 1.8, ease: luxuryEase }}
+              transition={{ duration: 2.0, ease: luxuryEase }}
             />
 
             <AnimatePresence mode="wait">
@@ -95,7 +95,7 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 1.2, ease: luxuryEase }}
+                  transition={{ duration: 1.4, ease: luxuryEase }}
                   className="flex flex-col items-center gap-3"
                 >
                   <BrandNameReveal active={nameActive} />
@@ -103,7 +103,7 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
                     className="mt-4 max-w-[300px] text-center text-[9px] leading-relaxed tracking-[0.32em] text-white/30 uppercase"
                     initial={{ opacity: 0, y: 8 }}
                     animate={nameActive ? { opacity: 1, y: 0 } : { opacity: 0 }}
-                    transition={{ duration: 1.2, delay: 0.75, ease: luxuryEase }}
+                    transition={{ duration: 1.4, delay: 0.85, ease: luxuryEase }}
                   >
                     Controlled plant environments
                   </motion.p>
@@ -115,12 +115,12 @@ export function LaunchLoader({ onComplete, onExitComplete }: LaunchLoaderProps) 
           <motion.div
             className="absolute bottom-[10vh] flex flex-col items-center gap-3"
             animate={{ opacity: phase === "hold" ? 0.45 : 0.18 }}
-            transition={{ duration: 1.4, ease: luxuryEase }}
+            transition={{ duration: 1.6, ease: luxuryEase }}
           >
             <motion.div
               className="h-10 w-px bg-gradient-to-b from-white/0 via-white/40 to-white/0"
               animate={{ scaleY: [0.4, 1, 0.4] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 3.0, repeat: Infinity, ease: "easeInOut" }}
             />
           </motion.div>
         </motion.div>

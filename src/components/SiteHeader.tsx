@@ -60,7 +60,7 @@ export function SiteHeader({
         }`}
         initial={isHome ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
         animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: -10 }}
-        transition={{ duration: isHome ? 1.5 : 0, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: isHome ? 1.7 : 0, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="relative mx-auto flex max-w-[1400px] items-center">
           <div className="relative z-10 shrink-0">

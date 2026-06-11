@@ -4,7 +4,7 @@ import { BRAND_FULL, BRAND_FULL_WORDS } from "@/lib/brand";
 import { motion, useReducedMotion } from "framer-motion";
 
 /** Slow, smooth opacity fade — starts immediately, no lead-in delay */
-export const TEXT_FADE_DURATION = 2.85;
+export const TEXT_FADE_DURATION = 3.05;
 const textEase = [0.16, 1, 0.3, 1] as const;
 
 type RevealStyle = "fade" | "drift";
